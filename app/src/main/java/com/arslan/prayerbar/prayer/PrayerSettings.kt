@@ -69,7 +69,7 @@ data class PrayerSettings(
     val midnightMethod: MidnightMethod = MidnightMethod.SunsetToFajr,
     val locations: List<SavedLocation> = emptyList(),
     val activeLocationId: String? = null,
-    val template: String = DEFAULT_TEMPLATE,
+    val template: String = defaultTemplate(),
     val trackedPrayers: Set<PrayerName> = OBLIGATORY_PRAYERS,
     /** Empty means "every active SIM". */
     val targetSubIds: List<Int> = emptyList(),
@@ -84,7 +84,9 @@ data class PrayerSettings(
     val isConfigured: Boolean get() = activeLocation != null
 
     companion object {
-        const val DEFAULT_TEMPLATE = "{vakit} {saat}"
+        /** Locale-spelled, so an English user is not handed a Turkish-looking template. */
+        fun defaultTemplate(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            TemplateToken.Prayer.spelling(locale) + " " + TemplateToken.Time.spelling(locale)
     }
 }
 

@@ -98,4 +98,9 @@
     <string name="notification_title">Bildirimler</string>
     <string name="notification_hint">Geri sayımı tazeleyen arka plan servisi için Android görünür bir bildirim şart koşar.</string>
     <string name="notification_blocked">Engelli — arka plan servisi bildirimini gösteremiyor</string>
+    <string name="token_prayer">Sıradaki vaktin adı</string>
+    <string name="token_time">Sıradaki vaktin saati</string>
+    <string name="token_remaining">Sıradaki vakte kalan süre</string>
+    <string name="token_previous">Önceki vaktin adı</string>
+    <string name="token_hijri">Hicri gün ve ay</string>
 </resources>

@@ -19,6 +19,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,7 @@ import com.arslan.prayerbar.R
 import com.arslan.prayerbar.carrier.CarrierTemplate
 import com.arslan.prayerbar.carrier.SimSlot
 import com.arslan.prayerbar.prayer.PrayerSettings
+import com.arslan.prayerbar.prayer.TemplateToken
 import com.arslan.prayerbar.ui.components.SectionCard
 import com.arslan.prayerbar.ui.components.SwitchRow
 
@@ -40,6 +42,9 @@ fun FormatScreen(
     onRestartSystemUi: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    // Follows the in-app locale, not the process default, so a per-app language switch is honoured.
+    val locale = LocalConfiguration.current.locales[0]
+
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(16.dp),
@@ -79,7 +84,7 @@ fun FormatScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CarrierTemplate.PRESETS.forEach { preset ->
+                    CarrierTemplate.presetsFor(locale).forEach { preset ->
                         FilterChip(
                             selected = settings.template == preset,
                             onClick = { onTemplate(preset) },
@@ -93,12 +98,20 @@ fun FormatScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CarrierTemplate.TOKENS.forEach { token ->
+                    TemplateToken.entries.forEach { token ->
+                        val spelling = token.spelling(locale)
                         AssistChip(
-                            onClick = { onTemplate(settings.template + token) },
-                            label = { Text(token) },
+                            onClick = { onTemplate(settings.template + spelling) },
+                            label = { Text(spelling) },
                         )
                     }
+                }
+                TemplateToken.entries.forEach { token ->
+                    Text(
+                        text = token.spelling(locale) + " · " + stringResource(token.descriptionRes),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 SwitchRow(
                     title = stringResource(R.string.format_clock_24h),

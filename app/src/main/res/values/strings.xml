@@ -100,4 +100,9 @@
     <string name="notification_title">Notifications</string>
     <string name="notification_hint">Android requires a visible notification for the background service that refreshes the countdown.</string>
     <string name="notification_blocked">Blocked — the background service cannot show its notification</string>
+    <string name="token_prayer">Next prayer name</string>
+    <string name="token_time">Next prayer clock time</string>
+    <string name="token_remaining">Time left until the next prayer</string>
+    <string name="token_previous">Previous prayer name</string>
+    <string name="token_hijri">Hijri day and month</string>
 </resources>
