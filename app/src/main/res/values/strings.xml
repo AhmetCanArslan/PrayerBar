@@ -89,4 +89,15 @@
     <string name="result_no_sim">No active SIM</string>
     <string name="result_no_phone_permission">Phone permission missing — grant it in Shizuku settings</string>
     <string name="result_failed">Failed: %1$s</string>
+    <string name="service_channel_name">Carrier label</string>
+    <string name="service_channel_description">Keeps the status bar label refreshed. Silence this channel to hide the sound; the notification itself is required by Android.</string>
+    <string name="service_notification_text">Keeping the status bar label up to date</string>
+    <string name="battery_title">Battery optimisation</string>
+    <string name="battery_hint">While optimised, Android may kill the app when idle and the countdown stops refreshing on screen wake.</string>
+    <string name="battery_restricted">Optimised — the label can go stale after a long idle</string>
+    <string name="battery_allow">Allow unrestricted</string>
+    <string name="service_notification_hint">Hold this notification to silence or minimise it</string>
+    <string name="notification_title">Notifications</string>
+    <string name="notification_hint">Android requires a visible notification for the background service that refreshes the countdown.</string>
+    <string name="notification_blocked">Blocked — the background service cannot show its notification</string>
 </resources>

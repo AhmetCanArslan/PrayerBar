@@ -34,6 +34,10 @@ object CarrierTemplate {
         "{hicri}", "{hijri}",
     )
 
+    /** True when the template holds a token whose value drifts between prayer boundaries. */
+    fun hasCountdownToken(template: String): Boolean =
+        TOKEN_REGEX.findAll(template).any { it.groupValues[1].lowercase(Locale.ROOT) in COUNTDOWN_TOKENS }
+
     fun render(
         template: String,
         next: NextPrayer,
@@ -67,6 +71,8 @@ object CarrierTemplate {
         }
         return rendered.trim().take(CarrierNameManager.MAX_LABEL_LENGTH)
     }
+
+    private val COUNTDOWN_TOKENS = setOf("kalan", "remaining")
 
     // ICU's regex engine rejects an unescaped closing brace, so escape both.
     private val TOKEN_REGEX = Regex("\\{([A-Za-zçğıöşüÇĞİÖŞÜ]+)\\}")

@@ -87,4 +87,15 @@
     <string name="result_no_sim">Etkin SIM yok</string>
     <string name="result_no_phone_permission">Telefon izni yok — Shizuku ayarlarından verin</string>
     <string name="result_failed">Başarısız: %1$s</string>
+    <string name="service_channel_name">Operatör etiketi</string>
+    <string name="service_channel_description">Durum çubuğu etiketini güncel tutar. Bildirimi Android zorunlu kılar; kanalı sessize alabilirsiniz.</string>
+    <string name="service_notification_text">Durum çubuğu etiketi güncel tutuluyor</string>
+    <string name="battery_title">Pil optimizasyonu</string>
+    <string name="battery_hint">Optimizasyon açıkken Android boştaki uygulamayı kapatabilir; ekran açılışında geri sayım güncellenmez.</string>
+    <string name="battery_restricted">Optimizasyon açık — uzun boşta kalınca etiket eskiyebilir</string>
+    <string name="battery_allow">Kısıtlamayı kaldır</string>
+    <string name="service_notification_hint">Bu bildirimi susturmak veya küçültmek için basılı tutun</string>
+    <string name="notification_title">Bildirimler</string>
+    <string name="notification_hint">Geri sayımı tazeleyen arka plan servisi için Android görünür bir bildirim şart koşar.</string>
+    <string name="notification_blocked">Engelli — arka plan servisi bildirimini gösteremiyor</string>
 </resources>

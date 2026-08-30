@@ -19,6 +19,8 @@ class PrayerTickReceiver : BroadcastReceiver() {
                 withContext(Dispatchers.IO) {
                     val outcome = container.carrierApplier.apply(force = true)
                     container.alarmScheduler.schedule(outcome.next)
+                    // The process may have been killed since the last boundary; re-arm the wake refresh.
+                    CarrierService.start(context)
                     Log.d(TAG, "tick -> ${outcome.text} (${outcome.result})")
                 }
             } finally {

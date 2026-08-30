@@ -24,6 +24,7 @@ class BootReceiver : BroadcastReceiver() {
                     val outcome = container.carrierApplier.apply(force = true, persistent = true)
                     container.alarmScheduler.schedule(outcome.next)
                     container.scheduleSafetyNet()
+                    CarrierService.start(context)
                 }
             } finally {
                 pendingResult.finish()

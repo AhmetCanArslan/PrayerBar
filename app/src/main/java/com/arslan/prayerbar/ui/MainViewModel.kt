@@ -1,6 +1,8 @@
 package com.arslan.prayerbar.ui
 
 import android.app.Application
+import android.os.PowerManager
+import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -13,6 +15,7 @@ import com.arslan.prayerbar.carrier.CarrierResult
 import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.carrier.SimSlot
 import com.arslan.prayerbar.location.LocationProvider
+import com.arslan.prayerbar.schedule.CarrierService
 import com.arslan.prayerbar.prayer.Adjustments
 import com.arslan.prayerbar.prayer.DayTimes
 import com.arslan.prayerbar.prayer.NextPrayer
@@ -45,6 +48,10 @@ data class ShizukuState(
     val granted: Boolean = false,
     val phonePermission: Boolean = false,
     val canScheduleExact: Boolean = true,
+    /** The foreground service cannot show its required notification without this. */
+    val notificationsAllowed: Boolean = true,
+    /** False while the OS may doze the process, which kills the screen-wake refresh. */
+    val ignoringBatteryOptimizations: Boolean = true,
 )
 
 data class MainUiState(
@@ -98,9 +105,16 @@ class MainViewModel(
                     granted = ShizukuHelper.hasPermission(),
                     phonePermission = CarrierNameManager.hasPhonePermission(app),
                     canScheduleExact = container.alarmScheduler.canScheduleExact,
+                    notificationsAllowed = NotificationManagerCompat.from(app).areNotificationsEnabled(),
+                    ignoringBatteryOptimizations = isIgnoringBatteryOptimizations(app),
                 ),
             )
         }
+    }
+
+    private fun isIgnoringBatteryOptimizations(app: Application): Boolean {
+        val power = app.getSystemService(PowerManager::class.java) ?: return true
+        return power.isIgnoringBatteryOptimizations(app.packageName)
     }
 
     private fun recompute() {
@@ -138,9 +152,11 @@ class MainViewModel(
             container.settingsRepository.update { it.copy(enabled = enabled) }
             if (enabled) {
                 container.scheduleSafetyNet()
+                CarrierService.start(getApplication())
                 applyNow(persistent = true)
             } else {
                 container.cancelSafetyNet()
+                CarrierService.stop(getApplication())
                 container.alarmScheduler.cancel()
                 resetNow()
             }

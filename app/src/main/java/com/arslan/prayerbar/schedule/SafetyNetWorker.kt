@@ -20,6 +20,7 @@ class SafetyNetWorker(
         if (!settings.enabled) return Result.success()
         val outcome = container.carrierApplier.apply(force = true)
         container.alarmScheduler.schedule(outcome.next)
+        CarrierService.start(applicationContext)
         return if (outcome.result.isOk) Result.success() else Result.retry()
     }
 

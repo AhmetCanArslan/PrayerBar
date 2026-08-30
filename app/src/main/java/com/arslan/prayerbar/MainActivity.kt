@@ -110,6 +110,23 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
         }
     }
 
+    val notificationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+    ) { viewModel.refreshEnvironment() }
+
+    val requestNotificationPermission = {
+        // The permission only exists from Android 13; below that notifications are on by default.
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    // The foreground service that keeps the countdown fresh must show a notification; without this
+    // permission it is silently suppressed and the user has no way to see or mute it.
+    LaunchedEffect(Unit) {
+        if (!state.shizuku.notificationsAllowed) requestNotificationPermission()
+    }
+
     val locationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { granted ->
@@ -244,6 +261,7 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                     onRequestPhonePermission = {
                         phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
                     },
+                    onRequestNotificationPermission = requestNotificationPermission,
                 )
             }
         }
