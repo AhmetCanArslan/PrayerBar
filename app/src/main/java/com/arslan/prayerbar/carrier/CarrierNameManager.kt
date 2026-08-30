@@ -118,7 +118,7 @@ object CarrierNameManager {
         persistent: Boolean,
     ): CarrierResult {
         if (!ShizukuHelper.isSupportedAndroidVersion) return CarrierResult.Unsupported
-        if (!ShizukuHelper.hasPermission()) return CarrierResult.NoShizuku
+        if (!ShizukuHelper.awaitPermission()) return CarrierResult.NoShizuku
         if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) return CarrierResult.NoSim
         val binder = carrierConfigBinder()
             ?: return CarrierResult.TransactionFailed("carrier_config service unavailable")

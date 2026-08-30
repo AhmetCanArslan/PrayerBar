@@ -39,7 +39,7 @@ class NextPrayerResolver(private val calculator: PrayerTimesCalculator = PrayerT
     ): NextPrayer? {
         if (!settings.isConfigured) return null
         val tracked = settings.trackedPrayers.ifEmpty { OBLIGATORY_PRAYERS }
-        val today = LocalDate.ofInstant(now, zone)
+        val today = now.atZone(zone).toLocalDate()
         val days = (-1L..SEARCH_DAYS).mapNotNull { offset ->
             calculator.timesFor(today.plusDays(offset), settings, zone)
         }

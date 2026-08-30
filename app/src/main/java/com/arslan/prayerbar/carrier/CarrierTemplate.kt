@@ -45,7 +45,7 @@ object CarrierTemplate {
     ): String {
         val remaining = Duration.between(now, next.at)
         val previousLabel = next.previousName?.let(labelOf).orEmpty()
-        val hijri = LocalDate.ofInstant(now, zone).hijriDate()?.let { date ->
+        val hijri = now.atZone(zone).toLocalDate().hijriDate()?.let { date ->
             "${date[java.time.temporal.ChronoField.DAY_OF_MONTH]}.${date[java.time.temporal.ChronoField.MONTH_OF_YEAR]}"
         }.orEmpty()
 
@@ -68,5 +68,6 @@ object CarrierTemplate {
         return rendered.trim().take(CarrierNameManager.MAX_LABEL_LENGTH)
     }
 
-    private val TOKEN_REGEX = Regex("\\{([A-Za-zçğıöşüÇĞİÖŞÜ]+)}")
+    // ICU's regex engine rejects an unescaped closing brace, so escape both.
+    private val TOKEN_REGEX = Regex("\\{([A-Za-zçğıöşüÇĞİÖŞÜ]+)\\}")
 }

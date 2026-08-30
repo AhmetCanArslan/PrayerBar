@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import com.arslan.prayerbar.prayer.NextPrayer
 import java.time.Instant
@@ -17,7 +18,9 @@ class PrayerAlarmScheduler(private val context: Context) {
     private val alarmManager: AlarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    val canScheduleExact: Boolean get() = alarmManager.canScheduleExactAlarms()
+    /** The permission only exists from Android 12; before that exact alarms are always allowed. */
+    val canScheduleExact: Boolean
+        get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
 
     fun schedule(next: NextPrayer?) {
         val triggerAt = next?.at?.plusSeconds(BOUNDARY_GRACE_SECONDS)

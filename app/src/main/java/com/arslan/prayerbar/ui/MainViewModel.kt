@@ -108,9 +108,9 @@ class MainViewModel(
         val settings = current.settings
         val now = current.now
         val next = container.resolver.resolve(now, settings, zone)
-        val today = container.calculator.timesFor(LocalDate.ofInstant(now, zone), settings, zone)
+        val today = container.calculator.timesFor(now.atZone(zone).toLocalDate(), settings, zone)
         val tomorrow = container.calculator
-            .timesFor(LocalDate.ofInstant(now, zone).plusDays(1), settings, zone)
+            .timesFor(now.atZone(zone).toLocalDate().plusDays(1), settings, zone)
         val preview = next?.let {
             container.carrierApplier.preview(it, settings.template, now, settings.use24Hour)
         }.orEmpty()

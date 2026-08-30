@@ -6,6 +6,8 @@ import android.os.Build
 import android.util.Log
 import rikka.shizuku.Shizuku
 import java.lang.reflect.Method
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 /**
  * The single gateway to Shizuku. Every privileged call goes through here and every failure is
@@ -30,6 +32,25 @@ object ShizukuHelper {
         Shizuku.pingBinder() && Shizuku.checkSelfPermission() == 0
     } catch (e: Exception) {
         false
+    }
+
+    /**
+     * The binder is handed over asynchronously shortly after the process starts, so a write fired
+     * from a boot receiver or an alarm can arrive before Shizuku is ready. Wait briefly for it.
+     */
+    fun awaitPermission(timeoutMillis: Long = 3_000L): Boolean {
+        if (hasPermission()) return true
+        val latch = CountDownLatch(1)
+        val listener = Shizuku.OnBinderReceivedListener { latch.countDown() }
+        return try {
+            Shizuku.addBinderReceivedListenerSticky(listener)
+            latch.await(timeoutMillis, TimeUnit.MILLISECONDS)
+            hasPermission()
+        } catch (e: Exception) {
+            false
+        } finally {
+            runCatching { Shizuku.removeBinderReceivedListener(listener) }
+        }
     }
 
     fun shouldShowRationale(): Boolean = try {
