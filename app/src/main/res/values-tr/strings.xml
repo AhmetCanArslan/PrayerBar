@@ -1,0 +1,89 @@
+<resources>
+    <string name="prayer_fajr">İmsak</string>
+    <string name="prayer_sunrise">Güneş</string>
+    <string name="prayer_dhuhr">Öğle</string>
+    <string name="prayer_asr">İkindi</string>
+    <string name="prayer_maghrib">Akşam</string>
+    <string name="prayer_isha">Yatsı</string>
+    <string name="prayer_midnight">Gece yarısı</string>
+    <string name="prayer_tahajjud">Teheccüd</string>
+
+    <string name="home_title">PrayerBar</string>
+    <string name="home_next_prayer">Sonraki vakit</string>
+    <string name="home_remaining">Kalan</string>
+    <string name="home_today">Bugün</string>
+    <string name="home_tomorrow">Yarın</string>
+    <string name="home_carrier_preview">Operatör adı</string>
+    <string name="home_apply">Uygula</string>
+    <string name="home_reset">Sıfırla</string>
+    <string name="home_refresh">Yenile</string>
+    <string name="home_enabled">Operatör adına yaz</string>
+    <string name="home_no_location">Vakitleri hesaplamak için konum ekleyin.</string>
+    <string name="home_set_location">Konum belirle</string>
+
+    <string name="nav_home">Vakitler</string>
+    <string name="nav_calculation">Hesaplama</string>
+    <string name="nav_location">Konum</string>
+    <string name="nav_format">Etiket</string>
+    <string name="nav_advanced">Gelişmiş</string>
+    <string name="nav_shizuku">Shizuku</string>
+
+    <string name="calc_method">Hesaplama yöntemi</string>
+    <string name="calc_method_modified">Özelleştirildi</string>
+    <string name="calc_fajr_angle">İmsak açısı</string>
+    <string name="calc_isha_angle">Yatsı açısı</string>
+    <string name="calc_isha_interval">Yatsı aralığı (dk)</string>
+    <string name="calc_maghrib_angle">Akşam açısı</string>
+    <string name="calc_restore_method">Yöntem varsayılanlarına dön</string>
+    <string name="calc_adjustments">Elle düzeltme (dakika)</string>
+
+    <string name="advanced_madhab">Mezhep (İkindi)</string>
+    <string name="advanced_madhab_shafi">Şafii</string>
+    <string name="advanced_madhab_hanafi">Hanefi</string>
+    <string name="advanced_high_latitude">Yüksek enlem kuralı</string>
+    <string name="advanced_high_latitude_auto">Otomatik</string>
+    <string name="advanced_shafaq">Şafak</string>
+    <string name="advanced_polar">Kutup dairesi</string>
+    <string name="advanced_rounding">Yuvarlama</string>
+    <string name="advanced_midnight">Gece yarısı yöntemi</string>
+    <string name="advanced_tracked">Takip edilen vakitler</string>
+
+    <string name="location_title">Konum</string>
+    <string name="location_use_gps">Konumumu kullan</string>
+    <string name="location_latitude">Enlem</string>
+    <string name="location_longitude">Boylam</string>
+    <string name="location_label">Ad</string>
+    <string name="location_save">Konumu kaydet</string>
+    <string name="location_delete">Sil</string>
+    <string name="location_empty">Kayıtlı konum yok.</string>
+    <string name="location_permission_needed">GPS için konum izni gerekli.</string>
+    <string name="location_gps_failed">Konum alınamadı. Açık alanda deneyin veya koordinat girin.</string>
+
+    <string name="format_title">Operatör adı</string>
+    <string name="format_template">Şablon</string>
+    <string name="format_presets">Hazır şablonlar</string>
+    <string name="format_tokens">Değişkenler</string>
+    <string name="format_preview">Önizleme</string>
+    <string name="format_clock_24h">24 saat biçimi</string>
+    <string name="format_sim">SIM</string>
+    <string name="format_sim_all">Tüm SIM\'ler</string>
+    <string name="format_restart_systemui">SystemUI\'yi yeniden başlat</string>
+    <string name="format_restart_systemui_hint">Bazı arayüzler operatör adını SystemUI yeniden başlayana kadar önbellekte tutar.</string>
+
+    <string name="shizuku_title">Shizuku</string>
+    <string name="shizuku_state_ready">Bağlı — izin verildi</string>
+    <string name="shizuku_state_no_permission">Çalışıyor, izin verilmedi</string>
+    <string name="shizuku_state_missing">Shizuku çalışmıyor</string>
+    <string name="shizuku_grant">İzin ver</string>
+    <string name="shizuku_hint">PrayerBar operatör adını Shizuku ile yazar. Root gerekmez.</string>
+    <string name="shizuku_phone_permission">Telefon durumu izni</string>
+    <string name="shizuku_exact_alarm">Tam zamanlı alarmlar</string>
+    <string name="shizuku_exact_alarm_missing">Tam zamanlı alarm kapalı — etiket geç güncellenebilir.</string>
+    <string name="shizuku_open_settings">Ayarları aç</string>
+
+    <string name="result_ok">Uygulandı</string>
+    <string name="result_no_shizuku">Shizuku izni yok</string>
+    <string name="result_unsupported">Android 11 veya üzeri gerekli</string>
+    <string name="result_no_sim">Etkin SIM yok</string>
+    <string name="result_failed">Başarısız: %1$s</string>
+</resources>

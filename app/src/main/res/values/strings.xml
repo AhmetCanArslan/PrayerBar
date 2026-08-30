@@ -1,3 +1,91 @@
 <resources>
     <string name="app_name">PrayerBar</string>
+
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_sunrise">Sunrise</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
+    <string name="prayer_midnight">Midnight</string>
+    <string name="prayer_tahajjud">Tahajjud</string>
+
+    <string name="home_title">PrayerBar</string>
+    <string name="home_next_prayer">Next prayer</string>
+    <string name="home_remaining">Remaining</string>
+    <string name="home_today">Today</string>
+    <string name="home_tomorrow">Tomorrow</string>
+    <string name="home_carrier_preview">Carrier label</string>
+    <string name="home_apply">Apply</string>
+    <string name="home_reset">Reset</string>
+    <string name="home_refresh">Refresh</string>
+    <string name="home_enabled">Write to carrier name</string>
+    <string name="home_no_location">Add a location to calculate prayer times.</string>
+    <string name="home_set_location">Set location</string>
+
+    <string name="nav_home">Times</string>
+    <string name="nav_calculation">Calculation</string>
+    <string name="nav_location">Location</string>
+    <string name="nav_format">Label</string>
+    <string name="nav_advanced">Advanced</string>
+    <string name="nav_shizuku">Shizuku</string>
+
+    <string name="calc_method">Calculation method</string>
+    <string name="calc_method_modified">Customised</string>
+    <string name="calc_fajr_angle">Fajr angle</string>
+    <string name="calc_isha_angle">Isha angle</string>
+    <string name="calc_isha_interval">Isha interval (min)</string>
+    <string name="calc_maghrib_angle">Maghrib angle</string>
+    <string name="calc_restore_method">Restore method defaults</string>
+    <string name="calc_adjustments">Manual offsets (minutes)</string>
+
+    <string name="advanced_madhab">Madhab (Asr)</string>
+    <string name="advanced_madhab_shafi">Shafi</string>
+    <string name="advanced_madhab_hanafi">Hanafi</string>
+    <string name="advanced_high_latitude">High latitude rule</string>
+    <string name="advanced_high_latitude_auto">Automatic</string>
+    <string name="advanced_shafaq">Shafaq</string>
+    <string name="advanced_polar">Polar circle</string>
+    <string name="advanced_rounding">Rounding</string>
+    <string name="advanced_midnight">Midnight method</string>
+    <string name="advanced_tracked">Tracked times</string>
+
+    <string name="location_title">Location</string>
+    <string name="location_use_gps">Use my location</string>
+    <string name="location_latitude">Latitude</string>
+    <string name="location_longitude">Longitude</string>
+    <string name="location_label">Name</string>
+    <string name="location_save">Save location</string>
+    <string name="location_delete">Delete</string>
+    <string name="location_empty">No saved locations yet.</string>
+    <string name="location_permission_needed">Location permission is required for GPS.</string>
+    <string name="location_gps_failed">Could not get a fix. Try again outdoors or enter coordinates.</string>
+
+    <string name="format_title">Carrier label</string>
+    <string name="format_template">Template</string>
+    <string name="format_presets">Presets</string>
+    <string name="format_tokens">Tokens</string>
+    <string name="format_preview">Preview</string>
+    <string name="format_clock_24h">24-hour clock</string>
+    <string name="format_sim">SIM</string>
+    <string name="format_sim_all">All SIMs</string>
+    <string name="format_restart_systemui">Restart SystemUI</string>
+    <string name="format_restart_systemui_hint">Some skins cache the carrier label until SystemUI restarts.</string>
+
+    <string name="shizuku_title">Shizuku</string>
+    <string name="shizuku_state_ready">Connected — permission granted</string>
+    <string name="shizuku_state_no_permission">Running, permission not granted</string>
+    <string name="shizuku_state_missing">Shizuku is not running</string>
+    <string name="shizuku_grant">Grant permission</string>
+    <string name="shizuku_hint">PrayerBar writes the carrier label through Shizuku. No root needed.</string>
+    <string name="shizuku_phone_permission">Phone state permission</string>
+    <string name="shizuku_exact_alarm">Exact alarms</string>
+    <string name="shizuku_exact_alarm_missing">Exact alarms are off — the label may update late.</string>
+    <string name="shizuku_open_settings">Open settings</string>
+
+    <string name="result_ok">Applied</string>
+    <string name="result_no_shizuku">Shizuku permission missing</string>
+    <string name="result_unsupported">Needs Android 11 or newer</string>
+    <string name="result_no_sim">No active SIM</string>
+    <string name="result_failed">Failed: %1$s</string>
 </resources>
