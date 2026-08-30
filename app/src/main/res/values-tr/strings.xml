@@ -85,5 +85,6 @@
     <string name="result_no_shizuku">Shizuku izni yok</string>
     <string name="result_unsupported">Android 11 veya üzeri gerekli</string>
     <string name="result_no_sim">Etkin SIM yok</string>
+    <string name="result_no_phone_permission">Telefon izni yok — Shizuku ayarlarından verin</string>
     <string name="result_failed">Başarısız: %1$s</string>
 </resources>

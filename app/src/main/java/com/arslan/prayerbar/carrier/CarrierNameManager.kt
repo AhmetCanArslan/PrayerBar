@@ -9,6 +9,7 @@ import android.os.PersistableBundle
 import android.telephony.CarrierConfigManager
 import android.telephony.SubscriptionManager
 import android.telephony.TelephonyManager
+import android.util.Log
 import androidx.core.content.ContextCompat
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
@@ -25,6 +26,7 @@ sealed interface CarrierResult {
     data object NoShizuku : CarrierResult
     data object Unsupported : CarrierResult
     data object NoSim : CarrierResult
+    data object NoPhonePermission : CarrierResult
     data class TransactionFailed(val reason: String) : CarrierResult
 
     val isOk: Boolean get() = this is Ok
@@ -40,6 +42,7 @@ sealed interface CarrierResult {
  */
 object CarrierNameManager {
 
+    private const val TAG = "CarrierNameManager"
     private const val CARRIER_CONFIG_SERVICE = "carrier_config"
     private const val DESCRIPTOR = "com.android.internal.telephony.ICarrierConfigLoader"
     private const val TRANSACTION_OVERRIDE_CONFIG = 3
@@ -53,20 +56,57 @@ object CarrierNameManager {
         Manifest.permission.READ_PHONE_STATE,
     ) == PackageManager.PERMISSION_GRANTED
 
+    /**
+     * Active SIMs, best effort. `activeSubscriptionInfoList` needs READ_PHONE_STATE and returns
+     * null/empty on plenty of OEM builds even with a live SIM, so an empty list from it is not
+     * proof of "no SIM": fall back to the default subscription id, which needs no permission.
+     */
     fun getSimSlots(context: Context): List<SimSlot> {
-        if (!hasPhonePermission(context)) return emptyList()
-        val manager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE)
-            as? SubscriptionManager ?: return emptyList()
         val telephony = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-        return try {
-            manager.activeSubscriptionInfoList.orEmpty().map { info ->
-                val name = info.carrierName?.toString().takeUnless { it.isNullOrBlank() }
-                    ?: telephony?.networkOperatorName.orEmpty()
-                SimSlot(info.subscriptionId, info.simSlotIndex, name)
+        val fromSubscriptions = if (hasPhonePermission(context)) {
+            val manager = context.getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE)
+                as? SubscriptionManager
+            try {
+                manager?.activeSubscriptionInfoList.orEmpty().map { info ->
+                    val name = info.carrierName?.toString().takeUnless { it.isNullOrBlank() }
+                        ?: telephony?.networkOperatorName.orEmpty()
+                    SimSlot(info.subscriptionId, info.simSlotIndex, name)
+                }
+            } catch (e: Exception) {
+                Log.w(TAG, "activeSubscriptionInfoList failed", e)
+                emptyList()
             }
-        } catch (e: SecurityException) {
+        } else {
             emptyList()
         }
+        if (fromSubscriptions.isNotEmpty()) return fromSubscriptions
+        return defaultSlot(telephony)
+    }
+
+    /** True when telephony reports a card present, regardless of READ_PHONE_STATE. */
+    fun hasSimPresent(context: Context): Boolean {
+        val telephony = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+        return telephony?.simState == TelephonyManager.SIM_STATE_READY
+    }
+
+    private fun defaultSlot(telephony: TelephonyManager?): List<SimSlot> {
+        if (telephony != null && telephony.simState != TelephonyManager.SIM_STATE_READY) {
+            return emptyList()
+        }
+        val subId = defaultSubId()
+        if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) return emptyList()
+        return listOf(SimSlot(subId, 0, telephony?.networkOperatorName.orEmpty()))
+    }
+
+    private fun defaultSubId(): Int = try {
+        val default = SubscriptionManager.getDefaultSubscriptionId()
+        if (default != SubscriptionManager.INVALID_SUBSCRIPTION_ID) {
+            default
+        } else {
+            SubscriptionManager.getDefaultDataSubscriptionId()
+        }
+    } catch (e: Exception) {
+        SubscriptionManager.INVALID_SUBSCRIPTION_ID
     }
 
     /**

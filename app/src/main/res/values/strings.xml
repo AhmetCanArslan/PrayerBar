@@ -87,5 +87,6 @@
     <string name="result_no_shizuku">Shizuku permission missing</string>
     <string name="result_unsupported">Needs Android 11 or newer</string>
     <string name="result_no_sim">No active SIM</string>
+    <string name="result_no_phone_permission">Phone permission missing — grant it in Shizuku settings</string>
     <string name="result_failed">Failed: %1$s</string>
 </resources>

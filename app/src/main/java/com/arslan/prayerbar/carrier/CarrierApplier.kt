@@ -58,7 +58,7 @@ class CarrierApplier(
     suspend fun reset(): CarrierResult {
         val settings = repository.current()
         val subIds = resolveSubIds(settings.targetSubIds)
-        if (subIds.isEmpty()) return CarrierResult.NoSim
+        if (subIds.isEmpty()) return noSubIdReason()
         val result = subIds
             .map { CarrierNameManager.resetCarrierName(it) }
             .firstOrNull { !it.isOk } ?: CarrierResult.Ok
@@ -79,7 +79,7 @@ class CarrierApplier(
 
     private fun write(targetSubIds: List<Int>, text: String, persistent: Boolean): CarrierResult {
         val subIds = resolveSubIds(targetSubIds)
-        if (subIds.isEmpty()) return CarrierResult.NoSim
+        if (subIds.isEmpty()) return noSubIdReason()
         var failure: CarrierResult? = null
         subIds.forEach { subId ->
             val result = CarrierNameManager.setCarrierName(subId, text, persistent)
@@ -87,6 +87,17 @@ class CarrierApplier(
         }
         return failure ?: CarrierResult.Ok
     }
+
+    /**
+     * No usable sub id has two very different causes; reporting both as "no SIM" sends the user
+     * hunting for a hardware problem when the real fix is one permission prompt.
+     */
+    private fun noSubIdReason(): CarrierResult =
+        if (!CarrierNameManager.hasPhonePermission(context)) {
+            CarrierResult.NoPhonePermission
+        } else {
+            CarrierResult.NoSim
+        }
 
     private fun resolveSubIds(targetSubIds: List<Int>): List<Int> {
         val active = CarrierNameManager.getSimSlots(context).map { it.subId }

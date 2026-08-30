@@ -288,6 +288,8 @@ class MainViewModel(
             CarrierResult.NoShizuku -> app.getString(R.string.result_no_shizuku)
             CarrierResult.Unsupported -> app.getString(R.string.result_unsupported)
             CarrierResult.NoSim -> app.getString(R.string.result_no_sim)
+            CarrierResult.NoPhonePermission ->
+                app.getString(R.string.result_no_phone_permission)
             is CarrierResult.TransactionFailed -> app.getString(R.string.result_failed, result.reason)
         }
     }

@@ -100,6 +100,14 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
         contract = ActivityResultContracts.RequestPermission(),
     ) { viewModel.refreshEnvironment() }
 
+    // Without READ_PHONE_STATE the SIM list comes back empty and every write looks like "no SIM",
+    // so ask once on first launch instead of waiting for the user to find the Shizuku screen.
+    LaunchedEffect(Unit) {
+        if (!state.shizuku.phonePermission) {
+            phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+        }
+    }
+
     val locationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { granted ->
