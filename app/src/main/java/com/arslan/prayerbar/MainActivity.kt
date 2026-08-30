@@ -53,6 +53,7 @@ import com.arslan.prayerbar.ui.settings.FormatScreen
 import com.arslan.prayerbar.ui.settings.LocationScreen
 import com.arslan.prayerbar.ui.settings.ShizukuScreen
 import com.arslan.prayerbar.ui.theme.PrayerBarTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import rikka.shizuku.Shizuku
 
 private enum class Destination(val labelRes: Int) {
@@ -69,6 +70,7 @@ class MainActivity : ComponentActivity() {
     private val shizukuListener = Shizuku.OnRequestPermissionResultListener { _, _ -> }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         runCatching { Shizuku.addRequestPermissionResultListener(shizukuListener) }

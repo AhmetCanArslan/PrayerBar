@@ -2,4 +2,10 @@
 <resources>
 
     <style name="Theme.PrayerBar" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="Theme.PrayerBar.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.PrayerBar</item>
+    </style>
 </resources>
