@@ -103,13 +103,14 @@
     <string name="token_previous">Önceki vaktin adı</string>
     <string name="token_hijri">Hicri gün ve ay</string>
     <string name="tile_name">PrayerBar</string>
-    <string name="tile_hint">Kutucuk operatör adının aynısını gösterir; dokunmak bir şey yapmaz.</string>
+    <string name="tile_hint">Kutucuk kendi başına bir yüzey: kendi metni, kendi anahtarı, Shizuku gerekmez. Dokunmak bir şey yapmaz.</string>
     <string name="tile_add">Hızlı ayarlar kutucuğu ekle</string>
     <string name="tile_add_failed">Hızlı ayarlar düzenleme ekranından elle ekleyebilirsin.</string>
     <string name="nav_tile">Kutucuk</string>
     <string name="tile_preview">Kutucuk önizleme</string>
     <string name="tile_label_template">Etiket</string>
-    <string name="tile_follow_carrier">Operatör adıyla aynı</string>
+    <string name="tile_enabled">Kutucuğu güncel tut</string>
+    <string name="tile_enabled_hint">Kutucuğu arka planda yeniler: her vakit sınırında, geri sayım gösteriyorsa ekran açıkken dakikada bir. Operatör adı kapalıyken de çalışır, ama ayakta kalmak için aynı kalıcı bildirime ihtiyaç duyar.</string>
     <string name="tile_subtitle_template">İkinci satır</string>
     <string name="tile_subtitle_hint">Hızlı ayarlar kutucuğu iki satır veriyor. Boş bırakırsan tek satır kalır.</string>
     <string name="tile_show_icon">Vakit ikonu</string>

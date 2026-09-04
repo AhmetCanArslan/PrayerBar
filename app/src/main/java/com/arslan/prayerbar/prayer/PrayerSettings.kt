@@ -1,5 +1,6 @@
 package com.arslan.prayerbar.prayer
 
+import com.arslan.prayerbar.carrier.CarrierTemplate
 import io.github.meypod.adhan_kotlin.CalculationMethod
 import io.github.meypod.adhan_kotlin.CalculationParameters
 import io.github.meypod.adhan_kotlin.MidnightMethod
@@ -62,13 +63,18 @@ data class Adjustments(
 }
 
 /**
- * The Quick Settings tile is its own surface: it has two text lines and an icon where the carrier
- * label has a single cramped string, so it gets its own templates rather than reusing the carrier
- * one — unless the user asks it to follow along.
+ * The Quick Settings tile is a surface of its own, not a copy of the carrier label: it has two text
+ * lines and an icon where the label has a single cramped string, it needs no Shizuku to draw, and it
+ * is switched on and off separately. Everything it does not share with the label lives here.
  */
 @Serializable
 data class TileSettings(
-    /** Blank means "whatever the carrier label says". */
+    /**
+     * Whether the app keeps the tile current in the background. Independent of
+     * [PrayerSettings.enabled]: the tile can run with the carrier label switched off, and vice versa.
+     */
+    val enabled: Boolean = false,
+    /** Blank only in a blob written before the tile had a template of its own. */
     val template: String = "",
     /** Blank means no second line. */
     val subtitleTemplate: String = "",
@@ -79,8 +85,16 @@ data class TileSettings(
      */
     val highlightMinutes: Int = 0,
 ) {
-    /** The label template actually used, falling back to the carrier one. */
-    fun labelTemplate(carrierTemplate: String): String = template.ifBlank { carrierTemplate }
+    /** The label template actually used. The carrier one is only ever a migration fallback. */
+    fun labelTemplate(): String = template.ifBlank { PrayerSettings.defaultTemplate() }
+
+    /**
+     * True when a line drifts between prayer boundaries, so the tile has to be redrawn on the minute
+     * tick rather than only when a boundary passes.
+     */
+    val hasCountdown: Boolean
+        get() = CarrierTemplate.hasCountdownToken(labelTemplate()) ||
+            CarrierTemplate.hasCountdownToken(subtitleTemplate)
 
     companion object {
         val HIGHLIGHT_CHOICES = listOf(0, 5, 10, 15, 30, 60)
@@ -104,6 +118,9 @@ data class PrayerSettings(
     val lastAppliedText: String? = null,
     val tile: TileSettings = TileSettings(),
 ) {
+    /** True while at least one surface is switched on and so needs the background machinery. */
+    val hasActiveSurface: Boolean get() = enabled || tile.enabled
+
     val activeLocation: SavedLocation?
         get() = locations.firstOrNull { it.id == activeLocationId } ?: locations.firstOrNull()
 

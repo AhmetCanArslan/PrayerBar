@@ -8,13 +8,17 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.arslan.prayerbar.PrayerBarApp
 import com.arslan.prayerbar.carrier.CarrierTemplate
+import com.arslan.prayerbar.tile.PrayerTileService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
  * A countdown token goes stale between prayer boundaries: the alarm only fires roughly six times a
- * day, so `{kalan}` would still read "2sa 10dk" an hour later. Re-render on every screen wake, the
- * only moment the label is actually looked at, instead of polling a minute ticker.
+ * day, so `{kalan}` would still read "2sa 10dk" an hour later. Re-render on every screen wake and on
+ * the minute tick the system only sends while the device is awake — the moments a surface is
+ * actually looked at, without an alarm of our own.
+ *
+ * Both surfaces ride on this, each with its own templates and its own switch.
  *
  * ACTION_SCREEN_ON and ACTION_USER_PRESENT cannot be declared in the manifest, so this is
  * registered at runtime by [CarrierService], which is also what keeps the process alive.
@@ -28,12 +32,21 @@ class ScreenWakeReceiver : BroadcastReceiver() {
             try {
                 withContext(Dispatchers.IO) {
                     val settings = container.settingsRepository.current()
-                    if (!settings.enabled) return@withContext
-                    // Without a countdown token the text only changes at a boundary; the alarm owns that.
-                    if (!CarrierTemplate.hasCountdownToken(settings.template)) return@withContext
-                    // force=false: the applier skips the write when the rendered text is unchanged.
-                    val outcome = container.carrierApplier.apply()
-                    Log.d(TAG, "wake -> ${outcome.text} (${outcome.result}) skipped=${outcome.skipped}")
+                    // Without a countdown token a surface only changes at a boundary; the alarm owns
+                    // that. The two surfaces are asked separately: the tile carries its own
+                    // templates, so a countdown can live there while the carrier label holds none.
+                    val carrierDrifts = settings.enabled &&
+                        CarrierTemplate.hasCountdownToken(settings.template)
+                    val tileDrifts = settings.tile.enabled && settings.tile.hasCountdown
+                    if (carrierDrifts) {
+                        // force=false: the applier skips the write when the rendered text is
+                        // unchanged, and it refreshes the tile on its way through.
+                        val outcome = container.carrierApplier.apply()
+                        Log.d(TAG, "wake -> ${outcome.text} (${outcome.result}) skipped=${outcome.skipped}")
+                    } else if (tileDrifts) {
+                        PrayerTileService.refresh(context)
+                        Log.d(TAG, "wake -> tile only")
+                    }
                 }
             } finally {
                 pendingResult.finish()

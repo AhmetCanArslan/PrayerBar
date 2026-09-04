@@ -6,8 +6,8 @@ import androidx.work.WorkerParameters
 import com.arslan.prayerbar.PrayerBarApp
 
 /**
- * Covers OEMs that quietly drop exact alarms: re-applies the label and re-arms the boundary alarm
- * a few times a day.
+ * Covers OEMs that quietly drop exact alarms: refreshes the live surfaces and re-arms the boundary
+ * alarm a few times a day.
  */
 class SafetyNetWorker(
     appContext: Context,
@@ -16,9 +16,8 @@ class SafetyNetWorker(
 
     override suspend fun doWork(): Result {
         val container = PrayerBarApp.container(applicationContext)
-        val settings = container.settingsRepository.current()
-        if (!settings.enabled) return Result.success()
-        val outcome = container.carrierApplier.apply(force = true)
+        val outcome = SurfaceRefresh.run(applicationContext, force = true)
+        if (!outcome.active) return Result.success()
         container.alarmScheduler.schedule(outcome.next)
         CarrierService.start(applicationContext)
         return if (outcome.result.isOk) Result.success() else Result.retry()

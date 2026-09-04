@@ -19,9 +19,8 @@ class BootReceiver : BroadcastReceiver() {
         container.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val settings = container.settingsRepository.current()
-                    if (!settings.enabled) return@withContext
-                    val outcome = container.carrierApplier.apply(force = true, persistent = true)
+                    val outcome = SurfaceRefresh.run(context, force = true, persistent = true)
+                    if (!outcome.active) return@withContext
                     container.alarmScheduler.schedule(outcome.next)
                     container.scheduleSafetyNet()
                     CarrierService.start(context)

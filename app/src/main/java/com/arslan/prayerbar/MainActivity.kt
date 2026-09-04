@@ -253,7 +253,7 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                     labelOf = viewModel::labelOf,
                     onTemplate = viewModel::setTileTemplate,
                     onSubtitleTemplate = viewModel::setTileSubtitleTemplate,
-                    onFollowCarrier = viewModel::setTileFollowsCarrier,
+                    onTileEnabled = viewModel::setTileEnabled,
                     onShowIcon = viewModel::setTileShowIcon,
                     onHighlightMinutes = viewModel::setTileHighlightMinutes,
                     onAddTile = viewModel::addQuickSettingsTile,

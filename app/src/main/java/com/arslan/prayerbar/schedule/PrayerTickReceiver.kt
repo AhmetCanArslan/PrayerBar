@@ -8,7 +8,7 @@ import com.arslan.prayerbar.PrayerBarApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-/** Fires at a prayer boundary: rewrite the label, then arm the next boundary. */
+/** Fires at a prayer boundary: refresh whichever surfaces are on, then arm the next boundary. */
 class PrayerTickReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -17,7 +17,9 @@ class PrayerTickReceiver : BroadcastReceiver() {
         container.launch {
             try {
                 withContext(Dispatchers.IO) {
-                    val outcome = container.carrierApplier.apply(force = true)
+                    val outcome = SurfaceRefresh.run(context, force = true)
+                    // Everything is off: a leftover alarm from before, so let the chain end here.
+                    if (!outcome.active) return@withContext
                     container.alarmScheduler.schedule(outcome.next)
                     // The process may have been killed since the last boundary; re-arm the wake refresh.
                     CarrierService.start(context)

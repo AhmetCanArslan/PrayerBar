@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import com.arslan.prayerbar.MainActivity
 import com.arslan.prayerbar.PrayerBarApp
 import com.arslan.prayerbar.R
+import com.arslan.prayerbar.tile.TileRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,6 +25,9 @@ import kotlinx.coroutines.withContext
  * A runtime-registered receiver dies with the process, and the system reclaims an idle app within
  * minutes: after a long idle the label was only refreshed once the user opened the app or the next
  * boundary alarm fired. A foreground service is the only way to hold a live SCREEN_ON registration.
+ *
+ * It runs for either surface — the carrier label or the Quick Settings tile — and stops itself once
+ * both are off.
  */
 class CarrierService : android.app.Service() {
 
@@ -45,12 +49,16 @@ class CarrierService : android.app.Service() {
         container.launch {
             withContext(Dispatchers.IO) {
                 val settings = container.settingsRepository.current()
-                if (!settings.enabled) {
+                val outcome = SurfaceRefresh.run(this@CarrierService)
+                if (!outcome.active) {
                     stopSelf()
                     return@withContext
                 }
-                val outcome = container.carrierApplier.apply()
-                outcome.text?.let { updateNotification(it) }
+                // In tile-only mode there is no carrier text to report, so the notification borrows
+                // the tile's own label rather than sitting on a stale one.
+                val text = outcome.text
+                    ?: TileRenderer.render(this@CarrierService, settings, outcome.next).label
+                updateNotification(text)
             }
         }
         return START_STICKY

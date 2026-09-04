@@ -20,6 +20,7 @@ import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.carrier.SimSlot
 import com.arslan.prayerbar.location.LocationProvider
 import com.arslan.prayerbar.schedule.CarrierService
+import com.arslan.prayerbar.schedule.SurfaceRefresh
 import com.arslan.prayerbar.tile.PrayerTileService
 import com.arslan.prayerbar.tile.TileContent
 import com.arslan.prayerbar.tile.TileRenderer
@@ -166,18 +167,46 @@ class MainViewModel(
 
     fun setEnabled(enabled: Boolean) {
         viewModelScope.launch {
-            container.settingsRepository.update { it.copy(enabled = enabled) }
+            val settings = container.settingsRepository.update { it.copy(enabled = enabled) }
             if (enabled) {
-                container.scheduleSafetyNet()
-                CarrierService.start(getApplication())
+                startBackgroundWork()
                 applyNow(persistent = true)
             } else {
-                container.cancelSafetyNet()
-                CarrierService.stop(getApplication())
-                container.alarmScheduler.cancel()
+                // The tile may still be running on the same machinery, so only tear it down when
+                // both surfaces are off.
+                if (!settings.tile.enabled) stopBackgroundWork()
                 resetNow()
             }
         }
+    }
+
+    /** The tile's own switch. Deliberately not tied to [setEnabled] — it needs no Shizuku and no SIM. */
+    fun setTileEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val settings = container.settingsRepository
+                .update { it.copy(tile = it.tile.copy(enabled = enabled)) }
+            if (enabled) {
+                startBackgroundWork()
+                val outcome = withContext(Dispatchers.IO) {
+                    SurfaceRefresh.run(getApplication(), force = true)
+                }
+                container.alarmScheduler.schedule(outcome.next)
+            } else {
+                if (!settings.enabled) stopBackgroundWork()
+                PrayerTileService.refresh(getApplication())
+            }
+        }
+    }
+
+    private fun startBackgroundWork() {
+        container.scheduleSafetyNet()
+        CarrierService.start(getApplication())
+    }
+
+    private fun stopBackgroundWork() {
+        container.cancelSafetyNet()
+        CarrierService.stop(getApplication())
+        container.alarmScheduler.cancel()
     }
 
     fun setMethod(method: CalculationMethod) = edit {
@@ -243,22 +272,11 @@ class MainViewModel(
     fun setTileSubtitleTemplate(template: String) =
         editTile { it.copy(subtitleTemplate = template) }
 
-    /**
-     * "Follow the carrier label" is stored as an empty template rather than a flag, so a later edit
-     * to the carrier label keeps carrying over instead of silently detaching.
-     */
-    fun setTileFollowsCarrier(follow: Boolean) = edit { settings ->
-        settings.copy(
-            tile = settings.tile.copy(
-                template = if (follow) "" else settings.tile.labelTemplate(settings.template),
-            ),
-        )
-    }
-
     fun setTileShowIcon(show: Boolean) = editTile { it.copy(showIcon = show) }
 
     fun setTileHighlightMinutes(minutes: Int) =
         editTile { it.copy(highlightMinutes = minutes.coerceAtLeast(0)) }
+
     fun setUse24Hour(use24Hour: Boolean) = edit { it.copy(use24Hour = use24Hour) }
     fun setTargetSubIds(subIds: List<Int>) = edit { it.copy(targetSubIds = subIds) }
 

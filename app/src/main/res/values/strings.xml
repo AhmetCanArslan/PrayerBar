@@ -105,13 +105,14 @@
     <string name="token_previous">Previous prayer name</string>
     <string name="token_hijri">Hijri day and month</string>
     <string name="tile_name">PrayerBar</string>
-    <string name="tile_hint">The tile mirrors the carrier label. Tapping it does nothing.</string>
+    <string name="tile_hint">The tile is its own surface: its own text, its own switch, and no Shizuku needed. Tapping it does nothing.</string>
     <string name="tile_add">Add Quick Settings tile</string>
     <string name="tile_add_failed">Add it by hand from the Quick Settings edit screen.</string>
     <string name="nav_tile">Tile</string>
     <string name="tile_preview">Tile preview</string>
     <string name="tile_label_template">Label</string>
-    <string name="tile_follow_carrier">Same as the carrier label</string>
+    <string name="tile_enabled">Keep the tile up to date</string>
+    <string name="tile_enabled_hint">Refreshes the tile in the background — at every prayer boundary, and every minute while the screen is on if it shows a countdown. Works with the carrier label switched off, but it needs the same ongoing notification to stay alive.</string>
     <string name="tile_subtitle_template">Second line</string>
     <string name="tile_subtitle_hint">Quick Settings gives the tile two lines. Leave this empty to use just one.</string>
     <string name="tile_show_icon">Prayer icon</string>

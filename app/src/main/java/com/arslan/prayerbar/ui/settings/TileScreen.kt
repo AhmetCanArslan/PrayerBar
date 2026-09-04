@@ -38,8 +38,8 @@ import com.arslan.prayerbar.carrier.CarrierTemplate
 import com.arslan.prayerbar.prayer.PRAYERS_IN_ORDER
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.PrayerName
-import com.arslan.prayerbar.prayer.TemplateToken
 import com.arslan.prayerbar.prayer.TileSettings
+import com.arslan.prayerbar.prayer.TemplateToken
 import com.arslan.prayerbar.prayer.visual
 import com.arslan.prayerbar.tile.TileContent
 import com.arslan.prayerbar.ui.components.SectionCard
@@ -47,8 +47,8 @@ import com.arslan.prayerbar.ui.components.SwitchRow
 
 /**
  * Everything about the Quick Settings tile lives here rather than on the carrier-label screen: the
- * two surfaces have different shapes (two lines and an icon versus one cramped string) and the user
- * is usually tuning one or the other, not both.
+ * two surfaces are independent — different shapes (two lines and an icon versus one cramped string),
+ * their own templates, and a switch each — and the user is usually tuning one or the other.
  */
 @Composable
 fun TileScreen(
@@ -57,7 +57,7 @@ fun TileScreen(
     labelOf: (PrayerName) -> String,
     onTemplate: (String) -> Unit,
     onSubtitleTemplate: (String) -> Unit,
-    onFollowCarrier: (Boolean) -> Unit,
+    onTileEnabled: (Boolean) -> Unit,
     onShowIcon: (Boolean) -> Unit,
     onHighlightMinutes: (Int) -> Unit,
     onAddTile: () -> Unit,
@@ -65,7 +65,6 @@ fun TileScreen(
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val tile = settings.tile
-    val follows = tile.template.isBlank()
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
@@ -88,22 +87,27 @@ fun TileScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.tile_label_template)) {
+            SectionCard(
+                title = stringResource(R.string.tile_enabled),
+                supporting = stringResource(R.string.tile_enabled_hint),
+            ) {
                 SwitchRow(
-                    title = stringResource(R.string.tile_follow_carrier),
-                    checked = follows,
-                    onCheckedChange = onFollowCarrier,
+                    title = stringResource(R.string.tile_enabled),
+                    checked = tile.enabled,
+                    onCheckedChange = onTileEnabled,
                 )
-                if (!follows) {
-                    OutlinedTextField(
-                        value = tile.template,
-                        onValueChange = onTemplate,
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    PresetRow(locale = locale, selected = tile.template, onPick = onTemplate)
-                    TokenRow(locale = locale) { onTemplate(tile.template + it) }
-                }
+            }
+        }
+        item {
+            SectionCard(title = stringResource(R.string.tile_label_template)) {
+                OutlinedTextField(
+                    value = tile.labelTemplate(),
+                    onValueChange = onTemplate,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                PresetRow(locale = locale, selected = tile.labelTemplate(), onPick = onTemplate)
+                TokenRow(locale = locale) { onTemplate(tile.labelTemplate() + it) }
             }
         }
         item {

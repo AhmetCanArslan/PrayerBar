@@ -56,7 +56,7 @@ object TileRenderer {
             remaining <= Duration.ofMinutes(tile.highlightMinutes.toLong())
 
         return TileContent(
-            label = render(context, tile.labelTemplate(settings.template), settings, next, now),
+            label = render(context, tile.labelTemplate(), settings, next, now),
             subtitle = tile.subtitleTemplate
                 .takeIf { it.isNotBlank() }
                 ?.let { render(context, it, settings, next, now) }
