@@ -6,6 +6,8 @@ import com.arslan.prayerbar.data.SettingsRepository
 import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.NextPrayerResolver
 import com.arslan.prayerbar.prayer.PrayerName
+import com.arslan.prayerbar.prayer.PrayerSettings
+import com.arslan.prayerbar.tile.PrayerTileService
 import java.time.Instant
 import java.time.ZoneId
 
@@ -35,13 +37,10 @@ class CarrierApplier(
         val next = resolver.resolve(now, settings, ZoneId.systemDefault())
             ?: return ApplyOutcome(null, null, CarrierResult.TransactionFailed("no location set"))
 
-        val text = CarrierTemplate.render(
-            template = settings.template,
-            next = next,
-            now = now,
-            labelOf = { context.getString(it.labelRes) },
-            use24Hour = settings.use24Hour,
-        )
+        val text = renderText(settings, next, now)
+
+        // The QS tile shows the same string, so every path that refreshes the label refreshes it.
+        PrayerTileService.refresh(context)
 
         if (!force && text == settings.lastAppliedText) {
             return ApplyOutcome(text, next, CarrierResult.Ok, skipped = true)
@@ -54,6 +53,15 @@ class CarrierApplier(
         Log.d(TAG, "apply text=$text result=$result")
         return ApplyOutcome(text, next, result)
     }
+
+    private fun renderText(settings: PrayerSettings, next: NextPrayer, now: Instant): String =
+        CarrierTemplate.render(
+            template = settings.template,
+            next = next,
+            now = now,
+            labelOf = { context.getString(it.labelRes) },
+            use24Hour = settings.use24Hour,
+        )
 
     suspend fun reset(): CarrierResult {
         val settings = repository.current()

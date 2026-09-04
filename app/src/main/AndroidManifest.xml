@@ -52,6 +52,21 @@
                 android:value="Keeps the status bar carrier label countdown up to date while the device is awake" />
         </service>
 
+        <service
+            android:name=".tile.PrayerTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_prayer"
+            android:label="@string/tile_name"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+            <!-- The tile is a label, not a switch: keep it out of the toggleable-tile UI. -->
+            <meta-data
+                android:name="android.service.quicksettings.TOGGLEABLE_TILE"
+                android:value="false" />
+        </service>
+
         <receiver
             android:name=".schedule.PrayerTickReceiver"
             android:exported="false" />

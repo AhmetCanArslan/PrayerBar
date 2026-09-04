@@ -27,7 +27,6 @@
     <string name="nav_calculation">Calculation</string>
     <string name="nav_location">Location</string>
     <string name="nav_format">Label</string>
-    <string name="nav_advanced">Advanced</string>
     <string name="nav_shizuku">Shizuku</string>
 
     <string name="calc_method">Calculation method</string>
@@ -105,4 +104,24 @@
     <string name="token_remaining">Time left until the next prayer</string>
     <string name="token_previous">Previous prayer name</string>
     <string name="token_hijri">Hijri day and month</string>
+    <string name="tile_name">PrayerBar</string>
+    <string name="tile_hint">The tile mirrors the carrier label. Tapping it does nothing.</string>
+    <string name="tile_add">Add Quick Settings tile</string>
+    <string name="tile_add_failed">Add it by hand from the Quick Settings edit screen.</string>
+    <string name="nav_tile">Tile</string>
+    <string name="tile_preview">Tile preview</string>
+    <string name="tile_label_template">Label</string>
+    <string name="tile_follow_carrier">Same as the carrier label</string>
+    <string name="tile_subtitle_template">Second line</string>
+    <string name="tile_subtitle_hint">Quick Settings gives the tile two lines. Leave this empty to use just one.</string>
+    <string name="tile_show_icon">Prayer icon</string>
+    <string name="tile_show_icon_hint">Swaps the icon as the day moves on: a rising sun at dawn, a crescent at night.</string>
+    <string name="tile_highlight">Highlight when close</string>
+    <string name="tile_highlight_hint">The tile lights up in the system accent colour this long before the prayer. Off keeps it dim all day.</string>
+    <string name="tile_highlight_off">Off</string>
+    <string name="tile_highlight_minutes">%1$d min</string>
+    <string name="tile_icons">Icons and colours</string>
+    <string name="tile_color_hint">Android tints Quick Settings icons to match the system theme, so the per-prayer colour below is what you see in this app — on the panel itself it survives only on skins that skip that tint. The highlight above is the colour the platform does let an app control.</string>
+    <string name="tile_no_location">Set a location</string>
+    <string name="calc_rules">Rules</string>
 </resources>

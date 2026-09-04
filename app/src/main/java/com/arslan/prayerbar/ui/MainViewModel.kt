@@ -1,6 +1,10 @@
 package com.arslan.prayerbar.ui
 
 import android.app.Application
+import android.app.StatusBarManager
+import android.content.ComponentName
+import android.graphics.drawable.Icon
+import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.AndroidViewModel
@@ -16,12 +20,16 @@ import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.carrier.SimSlot
 import com.arslan.prayerbar.location.LocationProvider
 import com.arslan.prayerbar.schedule.CarrierService
+import com.arslan.prayerbar.tile.PrayerTileService
+import com.arslan.prayerbar.tile.TileContent
+import com.arslan.prayerbar.tile.TileRenderer
 import com.arslan.prayerbar.prayer.Adjustments
 import com.arslan.prayerbar.prayer.DayTimes
 import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.SavedLocation
+import com.arslan.prayerbar.prayer.TileSettings
 import io.github.meypod.adhan_kotlin.CalculationMethod
 import io.github.meypod.adhan_kotlin.CalculationParameters
 import io.github.meypod.adhan_kotlin.HighLatitudeRule
@@ -61,6 +69,8 @@ data class MainUiState(
     val today: DayTimes? = null,
     val tomorrow: DayTimes? = null,
     val previewText: String = "",
+    /** What the Quick Settings tile would show right now — the tile screen previews it live. */
+    val tilePreview: TileContent? = null,
     val simSlots: List<SimSlot> = emptyList(),
     val shizuku: ShizukuState = ShizukuState(),
     val busy: Boolean = false,
@@ -128,8 +138,15 @@ class MainViewModel(
         val preview = next?.let {
             container.carrierApplier.preview(it, settings.template, now, settings.use24Hour)
         }.orEmpty()
+        val tilePreview = TileRenderer.render(getApplication(), settings, next, now)
         _state.update {
-            it.copy(next = next, today = today, tomorrow = tomorrow, previewText = preview)
+            it.copy(
+                next = next,
+                today = today,
+                tomorrow = tomorrow,
+                previewText = preview,
+                tilePreview = tilePreview,
+            )
         }
     }
 
@@ -214,6 +231,34 @@ class MainViewModel(
     }
 
     fun setTemplate(template: String) = edit { it.copy(template = template) }
+
+    // ---- Quick Settings tile ------------------------------------------------
+
+    private fun editTile(transform: (TileSettings) -> TileSettings) = edit {
+        it.copy(tile = transform(it.tile))
+    }
+
+    fun setTileTemplate(template: String) = editTile { it.copy(template = template) }
+
+    fun setTileSubtitleTemplate(template: String) =
+        editTile { it.copy(subtitleTemplate = template) }
+
+    /**
+     * "Follow the carrier label" is stored as an empty template rather than a flag, so a later edit
+     * to the carrier label keeps carrying over instead of silently detaching.
+     */
+    fun setTileFollowsCarrier(follow: Boolean) = edit { settings ->
+        settings.copy(
+            tile = settings.tile.copy(
+                template = if (follow) "" else settings.tile.labelTemplate(settings.template),
+            ),
+        )
+    }
+
+    fun setTileShowIcon(show: Boolean) = editTile { it.copy(showIcon = show) }
+
+    fun setTileHighlightMinutes(minutes: Int) =
+        editTile { it.copy(highlightMinutes = minutes.coerceAtLeast(0)) }
     fun setUse24Hour(use24Hour: Boolean) = edit { it.copy(use24Hour = use24Hour) }
     fun setTargetSubIds(subIds: List<Int>) = edit { it.copy(targetSubIds = subIds) }
 
@@ -273,6 +318,29 @@ class MainViewModel(
             val result = withContext(Dispatchers.IO) { container.carrierApplier.reset() }
             _state.update { it.copy(busy = false, message = describe(result)) }
         }
+    }
+
+    /**
+     * Prompts the system to add the QS tile. Only Android 13+ can ask; before that the user has to
+     * drag it in from the Quick Settings edit screen, so say so instead of failing silently.
+     */
+    fun addQuickSettingsTile() {
+        val context = getApplication<Application>()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            message(R.string.tile_add_failed)
+            return
+        }
+        val manager = context.getSystemService(StatusBarManager::class.java)
+        if (manager == null) {
+            message(R.string.tile_add_failed)
+            return
+        }
+        manager.requestAddTileService(
+            ComponentName(context, PrayerTileService::class.java),
+            context.getString(R.string.tile_name),
+            Icon.createWithResource(context, R.drawable.ic_tile_prayer),
+            context.mainExecutor,
+        ) { /* The system already tells the user what happened; nothing to report twice. */ }
     }
 
     fun restartSystemUi() {

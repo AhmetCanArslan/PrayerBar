@@ -19,7 +19,7 @@ import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.Place
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.Security
-import androidx.compose.material.icons.rounded.Tune
+import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -47,11 +47,11 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.ui.MainViewModel
 import com.arslan.prayerbar.ui.home.HomeScreen
-import com.arslan.prayerbar.ui.settings.AdvancedScreen
 import com.arslan.prayerbar.ui.settings.CalculationScreen
 import com.arslan.prayerbar.ui.settings.FormatScreen
 import com.arslan.prayerbar.ui.settings.LocationScreen
 import com.arslan.prayerbar.ui.settings.ShizukuScreen
+import com.arslan.prayerbar.ui.settings.TileScreen
 import com.arslan.prayerbar.ui.theme.PrayerBarTheme
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import rikka.shizuku.Shizuku
@@ -59,9 +59,9 @@ import rikka.shizuku.Shizuku
 private enum class Destination(val labelRes: Int) {
     Home(R.string.nav_home),
     Calculation(R.string.nav_calculation),
-    Advanced(R.string.nav_advanced),
     Location(R.string.nav_location),
     Format(R.string.nav_format),
+    Tile(R.string.nav_tile),
     Shizuku(R.string.nav_shizuku),
 }
 
@@ -168,9 +168,9 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                 listOf(
                     Destination.Home to Icons.Rounded.Schedule,
                     Destination.Calculation to Icons.Rounded.Calculate,
-                    Destination.Advanced to Icons.Rounded.Tune,
                     Destination.Location to Icons.Rounded.Place,
                     Destination.Format to Icons.Rounded.EditNote,
+                    Destination.Tile to Icons.Rounded.Widgets,
                 ).forEach { (target, icon) ->
                     ShortNavigationBarItem(
                         selected = destination == target,
@@ -211,11 +211,6 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                     onMaghribAngle = viewModel::setMaghribAngle,
                     onAdjustment = viewModel::setAdjustment,
                     onResetAdjustments = viewModel::resetAdjustments,
-                )
-
-                Destination.Advanced -> AdvancedScreen(
-                    settings = state.settings,
-                    labelOf = viewModel::labelOf,
                     onMadhab = viewModel::setMadhab,
                     onHighLatitude = viewModel::setHighLatitudeRule,
                     onShafaq = viewModel::setShafaq,
@@ -250,6 +245,18 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                     onUse24Hour = viewModel::setUse24Hour,
                     onTargetSubIds = viewModel::setTargetSubIds,
                     onRestartSystemUi = viewModel::restartSystemUi,
+                )
+
+                Destination.Tile -> TileScreen(
+                    settings = state.settings,
+                    preview = state.tilePreview,
+                    labelOf = viewModel::labelOf,
+                    onTemplate = viewModel::setTileTemplate,
+                    onSubtitleTemplate = viewModel::setTileSubtitleTemplate,
+                    onFollowCarrier = viewModel::setTileFollowsCarrier,
+                    onShowIcon = viewModel::setTileShowIcon,
+                    onHighlightMinutes = viewModel::setTileHighlightMinutes,
+                    onAddTile = viewModel::addQuickSettingsTile,
                 )
 
                 Destination.Shizuku -> ShizukuScreen(

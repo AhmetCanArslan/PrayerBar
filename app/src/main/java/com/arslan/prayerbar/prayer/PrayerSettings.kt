@@ -61,6 +61,32 @@ data class Adjustments(
     }
 }
 
+/**
+ * The Quick Settings tile is its own surface: it has two text lines and an icon where the carrier
+ * label has a single cramped string, so it gets its own templates rather than reusing the carrier
+ * one — unless the user asks it to follow along.
+ */
+@Serializable
+data class TileSettings(
+    /** Blank means "whatever the carrier label says". */
+    val template: String = "",
+    /** Blank means no second line. */
+    val subtitleTemplate: String = "",
+    val showIcon: Boolean = true,
+    /**
+     * Minutes before the prayer at which the tile switches to its active (accent-coloured) state.
+     * 0 disables the highlight. This is the only colour Quick Settings lets an app drive.
+     */
+    val highlightMinutes: Int = 0,
+) {
+    /** The label template actually used, falling back to the carrier one. */
+    fun labelTemplate(carrierTemplate: String): String = template.ifBlank { carrierTemplate }
+
+    companion object {
+        val HIGHLIGHT_CHOICES = listOf(0, 5, 10, 15, 30, 60)
+    }
+}
+
 /** Everything the app persists, stored as a single JSON blob in DataStore. */
 @Serializable
 data class PrayerSettings(
@@ -76,6 +102,7 @@ data class PrayerSettings(
     val enabled: Boolean = false,
     val use24Hour: Boolean = true,
     val lastAppliedText: String? = null,
+    val tile: TileSettings = TileSettings(),
 ) {
     val activeLocation: SavedLocation?
         get() = locations.firstOrNull { it.id == activeLocationId } ?: locations.firstOrNull()

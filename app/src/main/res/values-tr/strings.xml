@@ -25,7 +25,6 @@
     <string name="nav_calculation">Hesaplama</string>
     <string name="nav_location">Konum</string>
     <string name="nav_format">Etiket</string>
-    <string name="nav_advanced">Gelişmiş</string>
     <string name="nav_shizuku">Shizuku</string>
 
     <string name="calc_method">Hesaplama yöntemi</string>
@@ -103,4 +102,24 @@
     <string name="token_remaining">Sıradaki vakte kalan süre</string>
     <string name="token_previous">Önceki vaktin adı</string>
     <string name="token_hijri">Hicri gün ve ay</string>
+    <string name="tile_name">PrayerBar</string>
+    <string name="tile_hint">Kutucuk operatör adının aynısını gösterir; dokunmak bir şey yapmaz.</string>
+    <string name="tile_add">Hızlı ayarlar kutucuğu ekle</string>
+    <string name="tile_add_failed">Hızlı ayarlar düzenleme ekranından elle ekleyebilirsin.</string>
+    <string name="nav_tile">Kutucuk</string>
+    <string name="tile_preview">Kutucuk önizleme</string>
+    <string name="tile_label_template">Etiket</string>
+    <string name="tile_follow_carrier">Operatör adıyla aynı</string>
+    <string name="tile_subtitle_template">İkinci satır</string>
+    <string name="tile_subtitle_hint">Hızlı ayarlar kutucuğu iki satır veriyor. Boş bırakırsan tek satır kalır.</string>
+    <string name="tile_show_icon">Vakit ikonu</string>
+    <string name="tile_show_icon_hint">İkon vakte göre değişir: sabah doğan güneş, gece hilal.</string>
+    <string name="tile_highlight">Vakit yaklaşınca vurgula</string>
+    <string name="tile_highlight_hint">Vakte bu kadar kala kutucuk sistem vurgu rengiyle yanar. Kapalıyken gün boyu sönük durur.</string>
+    <string name="tile_highlight_off">Kapalı</string>
+    <string name="tile_highlight_minutes">%1$d dk</string>
+    <string name="tile_icons">İkonlar ve renkler</string>
+    <string name="tile_color_hint">Android hızlı ayarlar ikonlarını sistem temasına göre boyuyor; aşağıdaki vakit renkleri bu uygulamada göründüğü gibi. Panelde ise ancak bu boyamayı atlayan arayüzlerde korunur. Yukarıdaki vurgu, platformun uygulamaya bıraktığı tek renk.</string>
+    <string name="tile_no_location">Konum ekle</string>
+    <string name="calc_rules">Kurallar</string>
 </resources>

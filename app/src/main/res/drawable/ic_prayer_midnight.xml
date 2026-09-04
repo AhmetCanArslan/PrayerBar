@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Quick Settings draws tile icons around 20px and monochrome-tinted, so every icon is one
+     dominant filled shape: thin detail and small ornaments disappear at that size. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:fillType="evenOdd"
+        android:pathData="M10.2,6.6a6.8,6.8 0 1 0 0,13.6a6.8,6.8 0 1 0 0,-13.6zM8.1,9.4a1.8,1.8 0 1 0 0,3.6a1.8,1.8 0 1 0 0,-3.6zM12.5,14.4a1.2,1.2 0 1 0 0,2.4a1.2,1.2 0 1 0 0,-2.4z" />
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M19.6,1.8L20.62,4.18L23,5.2L20.62,6.22L19.6,8.6L18.58,6.22L16.2,5.2L18.58,4.18z" />
+</vector>
