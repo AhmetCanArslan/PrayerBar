@@ -2,6 +2,7 @@ package com.arslan.prayerbar.ui
 
 import android.app.Application
 import android.app.StatusBarManager
+import android.appwidget.AppWidgetManager
 import android.content.ComponentName
 import android.graphics.drawable.Icon
 import android.os.Build
@@ -31,6 +32,10 @@ import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.SavedLocation
 import com.arslan.prayerbar.prayer.TileSettings
+import com.arslan.prayerbar.prayer.WidgetSettings
+import com.arslan.prayerbar.widget.PrayerWidgetProvider
+import com.arslan.prayerbar.widget.WidgetContent
+import com.arslan.prayerbar.widget.WidgetRenderer
 import io.github.meypod.adhan_kotlin.CalculationMethod
 import io.github.meypod.adhan_kotlin.CalculationParameters
 import io.github.meypod.adhan_kotlin.HighLatitudeRule
@@ -57,9 +62,7 @@ data class ShizukuState(
     val granted: Boolean = false,
     val phonePermission: Boolean = false,
     val canScheduleExact: Boolean = true,
-    /** The foreground service cannot show its required notification without this. */
     val notificationsAllowed: Boolean = true,
-    /** False while the OS may doze the process, which kills the screen-wake refresh. */
     val ignoringBatteryOptimizations: Boolean = true,
 )
 
@@ -70,8 +73,8 @@ data class MainUiState(
     val today: DayTimes? = null,
     val tomorrow: DayTimes? = null,
     val previewText: String = "",
-    /** What the Quick Settings tile would show right now — the tile screen previews it live. */
     val tilePreview: TileContent? = null,
+    val widgetIds: List<Int> = emptyList(),
     val simSlots: List<SimSlot> = emptyList(),
     val shizuku: ShizukuState = ShizukuState(),
     val busy: Boolean = false,
@@ -82,10 +85,8 @@ class MainViewModel(
     application: Application,
     private val container: AppContainer,
 ) : AndroidViewModel(application) {
-
     private val locationProvider = LocationProvider(application)
     private val zone: ZoneId get() = ZoneId.systemDefault()
-
     private val _state = MutableStateFlow(MainUiState())
     val state: StateFlow<MainUiState> = _state.asStateFlow()
 
@@ -111,6 +112,7 @@ class MainViewModel(
         _state.update {
             it.copy(
                 simSlots = CarrierNameManager.getSimSlots(app),
+                widgetIds = PrayerWidgetProvider.ids(app).toList(),
                 shizuku = ShizukuState(
                     running = ShizukuHelper.isShizukuAvailable(),
                     granted = ShizukuHelper.hasPermission(),
@@ -153,11 +155,11 @@ class MainViewModel(
 
     fun labelOf(prayer: PrayerName): String = container.carrierApplier.labelOf(prayer)
 
-    // ---- settings mutations -------------------------------------------------
-
     private fun edit(transform: (PrayerSettings) -> PrayerSettings) {
         viewModelScope.launch {
-            container.settingsRepository.update(transform)
+            val settings = container.settingsRepository.update(transform)
+
+            PrayerWidgetProvider.refresh(getApplication(), settings)
             rearm()
         }
     }
@@ -172,15 +174,12 @@ class MainViewModel(
                 startBackgroundWork()
                 applyNow(persistent = true)
             } else {
-                // The tile may still be running on the same machinery, so only tear it down when
-                // both surfaces are off.
                 if (!settings.tile.enabled) stopBackgroundWork()
                 resetNow()
             }
         }
     }
 
-    /** The tile's own switch. Deliberately not tied to [setEnabled] — it needs no Shizuku and no SIM. */
     fun setTileEnabled(enabled: Boolean) {
         viewModelScope.launch {
             val settings = container.settingsRepository
@@ -210,8 +209,6 @@ class MainViewModel(
     }
 
     fun setMethod(method: CalculationMethod) = edit {
-        // Store a snapshot of the method's canonical parameters, keeping the user's madhab and the
-        // other advanced switches — the same trade-off al-azan makes.
         val base = method.parameters
         it.copy(
             parameters = base.copy(
@@ -261,8 +258,6 @@ class MainViewModel(
 
     fun setTemplate(template: String) = edit { it.copy(template = template) }
 
-    // ---- Quick Settings tile ------------------------------------------------
-
     private fun editTile(transform: (TileSettings) -> TileSettings) = edit {
         it.copy(tile = transform(it.tile))
     }
@@ -276,6 +271,40 @@ class MainViewModel(
 
     fun setTileHighlightMinutes(minutes: Int) =
         editTile { it.copy(highlightMinutes = minutes.coerceAtLeast(0)) }
+
+    fun editWidget(appWidgetId: Int, transform: (WidgetSettings) -> WidgetSettings) =
+        edit { it.withWidget(appWidgetId, transform) }
+
+    fun toggleWidgetPrayer(appWidgetId: Int, prayer: PrayerName) =
+        editWidget(appWidgetId) { it.togglePrayer(prayer) }
+
+    fun widgetPreview(appWidgetId: Int, capacity: Int): WidgetContent {
+        val current = _state.value
+        return WidgetRenderer.render(
+            context = getApplication(),
+            settings = current.settings,
+            widget = current.settings.widget(appWidgetId),
+            next = current.next,
+            today = current.today,
+            capacity = capacity,
+            now = current.now,
+            zone = zone,
+        )
+    }
+
+    fun pinWidget() {
+        val context = getApplication<Application>()
+        val manager = AppWidgetManager.getInstance(context)
+        val pinned = runCatching {
+            manager.isRequestPinAppWidgetSupported &&
+                manager.requestPinAppWidget(
+                    ComponentName(context, PrayerWidgetProvider::class.java),
+                    null,
+                    null,
+                )
+        }.getOrDefault(false)
+        if (!pinned) message(R.string.widget_add_failed)
+    }
 
     fun setUse24Hour(use24Hour: Boolean) = edit { it.copy(use24Hour = use24Hour) }
     fun setTargetSubIds(subIds: List<Int>) = edit { it.copy(targetSubIds = subIds) }
@@ -316,8 +345,6 @@ class MainViewModel(
         }
     }
 
-    // ---- carrier actions ----------------------------------------------------
-
     fun applyNow(persistent: Boolean = true) {
         viewModelScope.launch {
             _state.update { it.copy(busy = true) }
@@ -338,10 +365,6 @@ class MainViewModel(
         }
     }
 
-    /**
-     * Prompts the system to add the QS tile. Only Android 13+ can ask; before that the user has to
-     * drag it in from the Quick Settings edit screen, so say so instead of failing silently.
-     */
     fun addQuickSettingsTile() {
         val context = getApplication<Application>()
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
@@ -358,7 +381,7 @@ class MainViewModel(
             context.getString(R.string.tile_name),
             Icon.createWithResource(context, R.drawable.ic_tile_prayer),
             context.mainExecutor,
-        ) { /* The system already tells the user what happened; nothing to report twice. */ }
+        ) {  }
     }
 
     fun restartSystemUi() {
