@@ -1,6 +1,7 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3ExpressiveApi::class,
     androidx.compose.material3.ExperimentalMaterial3Api::class,
+    ExperimentalSharedTransitionApi::class,
 )
 
 package com.arslan.prayerbar
@@ -14,6 +15,8 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -22,7 +25,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -41,6 +43,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -60,7 +63,6 @@ import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
@@ -69,10 +71,15 @@ import com.arslan.prayerbar.ui.MainUiState
 import com.arslan.prayerbar.ui.MainViewModel
 import com.arslan.prayerbar.ui.Route
 import com.arslan.prayerbar.ui.home.HomeScreen
+import com.arslan.prayerbar.ui.settings.CONTAINER_TRANSFORM_MS
 import com.arslan.prayerbar.ui.settings.CalculationScreen
 import com.arslan.prayerbar.ui.settings.FormatScreen
+import com.arslan.prayerbar.ui.settings.LocalNavAnimatedVisibilityScope
+import com.arslan.prayerbar.ui.settings.LocalSharedTransitionScope
 import com.arslan.prayerbar.ui.settings.LocationScreen
+import com.arslan.prayerbar.ui.settings.SettingsDetail
 import com.arslan.prayerbar.ui.settings.SettingsScreen
+import com.arslan.prayerbar.ui.settings.screen
 import com.arslan.prayerbar.ui.settings.ShizukuScreen
 import com.arslan.prayerbar.ui.settings.TileScreen
 import com.arslan.prayerbar.ui.settings.WIDGET_PREVIEW_CAPACITY
@@ -211,25 +218,27 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
-            PrayerBarNavHost(
-                navController = navController,
-                state = state,
-                viewModel = viewModel,
-                activity = activity,
-                requestNotificationPermission = requestNotificationPermission,
-                onRequestPhonePermission = {
-                    phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
-                },
-                onRequestLocationPermission = {
-                    locationPermissionLauncher.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_COARSE_LOCATION,
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                        ),
-                    )
-                },
-            )
+        SharedTransitionLayout(modifier = Modifier.padding(innerPadding)) {
+            CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                PrayerBarNavHost(
+                    navController = navController,
+                    state = state,
+                    viewModel = viewModel,
+                    activity = activity,
+                    requestNotificationPermission = requestNotificationPermission,
+                    onRequestPhonePermission = {
+                        phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
+                    },
+                    onRequestLocationPermission = {
+                        locationPermissionLauncher.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_COARSE_LOCATION,
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                            ),
+                        )
+                    },
+                )
+            }
         }
     }
 }
@@ -253,7 +262,7 @@ private fun PrayerBarNavHost(
         popEnterTransition = { if (initialState.isTopLevel()) fadeThroughEnter else detailFadeIn },
         popExitTransition = { if (initialState.isTopLevel()) fadeThroughExit else detailFadeOut },
     ) {
-        composable<Route.Home> {
+        screen<Route.Home> {
             HomeScreen(
                 state = state,
                 labelOf = viewModel::labelOf,
@@ -270,7 +279,7 @@ private fun PrayerBarNavHost(
             )
         }
 
-        composable<Route.Location> {
+        screen<Route.Location> {
             LocationScreen(
                 settings = state.settings,
                 busy = state.busy,
@@ -285,80 +294,90 @@ private fun PrayerBarNavHost(
         }
 
         navigation<Route.SettingsGraph>(startDestination = Route.Settings) {
-            composable<Route.Settings> {
+            screen<Route.Settings> {
                 SettingsScreen(onOpen = navController::navigate)
             }
 
-            composable<Route.Calculation> {
-                CalculationScreen(
-                    settings = state.settings,
-                    labelOf = viewModel::labelOf,
-                    onMethodSelected = viewModel::setMethod,
-                    onRestoreDefaults = viewModel::restoreMethodDefaults,
-                    onFajrAngle = viewModel::setFajrAngle,
-                    onIshaAngle = viewModel::setIshaAngle,
-                    onIshaInterval = viewModel::setIshaInterval,
-                    onMaghribAngle = viewModel::setMaghribAngle,
-                    onAdjustment = viewModel::setAdjustment,
-                    onResetAdjustments = viewModel::resetAdjustments,
-                    onMadhab = viewModel::setMadhab,
-                    onHighLatitude = viewModel::setHighLatitudeRule,
-                    onShafaq = viewModel::setShafaq,
-                    onPolar = viewModel::setPolar,
-                    onRounding = viewModel::setRounding,
-                    onMidnight = viewModel::setMidnightMethod,
-                    onToggleTracked = viewModel::toggleTracked,
-                )
+            screen<Route.Calculation> {
+                SettingsDetail(Route.Calculation) {
+                    CalculationScreen(
+                        settings = state.settings,
+                        labelOf = viewModel::labelOf,
+                        onMethodSelected = viewModel::setMethod,
+                        onRestoreDefaults = viewModel::restoreMethodDefaults,
+                        onFajrAngle = viewModel::setFajrAngle,
+                        onIshaAngle = viewModel::setIshaAngle,
+                        onIshaInterval = viewModel::setIshaInterval,
+                        onMaghribAngle = viewModel::setMaghribAngle,
+                        onAdjustment = viewModel::setAdjustment,
+                        onResetAdjustments = viewModel::resetAdjustments,
+                        onMadhab = viewModel::setMadhab,
+                        onHighLatitude = viewModel::setHighLatitudeRule,
+                        onShafaq = viewModel::setShafaq,
+                        onPolar = viewModel::setPolar,
+                        onRounding = viewModel::setRounding,
+                        onMidnight = viewModel::setMidnightMethod,
+                        onToggleTracked = viewModel::toggleTracked,
+                    )
+                }
             }
 
-            composable<Route.Format> {
-                FormatScreen(
-                    settings = state.settings,
-                    previewText = state.previewText,
-                    simSlots = state.simSlots,
-                    onTemplate = viewModel::setTemplate,
-                    onUse24Hour = viewModel::setUse24Hour,
-                    onTargetSubIds = viewModel::setTargetSubIds,
-                    onRestartSystemUi = viewModel::restartSystemUi,
-                )
+            screen<Route.Format> {
+                SettingsDetail(Route.Format) {
+                    FormatScreen(
+                        settings = state.settings,
+                        previewText = state.previewText,
+                        simSlots = state.simSlots,
+                        onTemplate = viewModel::setTemplate,
+                        onUse24Hour = viewModel::setUse24Hour,
+                        onTargetSubIds = viewModel::setTargetSubIds,
+                        onRestartSystemUi = viewModel::restartSystemUi,
+                    )
+                }
             }
 
-            composable<Route.Tile> {
-                TileScreen(
-                    settings = state.settings,
-                    preview = state.tilePreview,
-                    labelOf = viewModel::labelOf,
-                    onTemplate = viewModel::setTileTemplate,
-                    onSubtitleTemplate = viewModel::setTileSubtitleTemplate,
-                    onTileEnabled = viewModel::setTileEnabled,
-                    onShowIcon = viewModel::setTileShowIcon,
-                    onHighlightMinutes = viewModel::setTileHighlightMinutes,
-                    onAddTile = viewModel::addQuickSettingsTile,
-                )
+            screen<Route.Tile> {
+                SettingsDetail(Route.Tile) {
+                    TileScreen(
+                        settings = state.settings,
+                        preview = state.tilePreview,
+                        labelOf = viewModel::labelOf,
+                        onTemplate = viewModel::setTileTemplate,
+                        onSubtitleTemplate = viewModel::setTileSubtitleTemplate,
+                        onTileEnabled = viewModel::setTileEnabled,
+                        onShowIcon = viewModel::setTileShowIcon,
+                        onHighlightMinutes = viewModel::setTileHighlightMinutes,
+                        onAddTile = viewModel::addQuickSettingsTile,
+                    )
+                }
             }
 
-            composable<Route.Widget> {
-                WidgetScreen(
-                    widgetIds = state.widgetIds,
-                    widgetOf = state.settings::widget,
-                    previewOf = { id -> viewModel.widgetPreview(id, WIDGET_PREVIEW_CAPACITY) },
-                    labelOf = viewModel::labelOf,
-                    onEdit = viewModel::editWidget,
-                    onTogglePrayer = viewModel::toggleWidgetPrayer,
-                    onAddWidget = viewModel::pinWidget,
-                )
+            screen<Route.Widget> {
+                SettingsDetail(Route.Widget) {
+                    WidgetScreen(
+                        widgetIds = state.widgetIds,
+                        widgetOf = state.settings::widget,
+                        previewOf = { id -> viewModel.widgetPreview(id, WIDGET_PREVIEW_CAPACITY) },
+                        labelOf = viewModel::labelOf,
+                        onEdit = viewModel::editWidget,
+                        onTogglePrayer = viewModel::toggleWidgetPrayer,
+                        onAddWidget = viewModel::pinWidget,
+                    )
+                }
             }
 
-            composable<Route.Permissions> {
-                ShizukuScreen(
-                    state = state.shizuku,
-                    onGrant = {
-                        ShizukuHelper.requestPermission(activity)
-                        ShizukuHelper.markRequested(activity)
-                    },
-                    onRequestPhonePermission = onRequestPhonePermission,
-                    onRequestNotificationPermission = requestNotificationPermission,
-                )
+            screen<Route.Permissions> {
+                SettingsDetail(Route.Permissions) {
+                    ShizukuScreen(
+                        state = state.shizuku,
+                        onGrant = {
+                            ShizukuHelper.requestPermission(activity)
+                            ShizukuHelper.markRequested(activity)
+                        },
+                        onRequestPhonePermission = onRequestPhonePermission,
+                        onRequestNotificationPermission = requestNotificationPermission,
+                    )
+                }
             }
         }
     }
@@ -403,12 +422,10 @@ private val fadeThroughEnter: EnterTransition =
 
 private val fadeThroughExit: ExitTransition = fadeOut(tween(FADE_THROUGH_DELAY_MS))
 
-private const val DETAIL_MS = 400
-
-private val detailFadeIn: EnterTransition = fadeIn(tween(DETAIL_MS))
-private val detailFadeOut: ExitTransition = fadeOut(tween(DETAIL_MS))
+private val detailFadeIn: EnterTransition = fadeIn(tween(CONTAINER_TRANSFORM_MS))
+private val detailFadeOut: ExitTransition = fadeOut(tween(CONTAINER_TRANSFORM_MS))
 
 private val barEnter: EnterTransition =
-    slideInVertically(tween(DETAIL_MS)) { it } + detailFadeIn
+    slideInVertically(tween(CONTAINER_TRANSFORM_MS)) { it } + detailFadeIn
 private val barExit: ExitTransition =
-    slideOutVertically(tween(DETAIL_MS)) { it } + detailFadeOut
+    slideOutVertically(tween(CONTAINER_TRANSFORM_MS)) { it } + detailFadeOut

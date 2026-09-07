@@ -114,6 +114,7 @@ private fun SettingsRow(
         colors = ListItemDefaults.colors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         modifier = Modifier
             .fillMaxWidth()
+            .settingsContainer(route, MaterialTheme.shapes.extraLarge)
             .clickable { onOpen(route) },
     ) { Text(title) }
 }
