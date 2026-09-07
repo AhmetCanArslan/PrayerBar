@@ -25,7 +25,15 @@
     <string name="nav_calculation">Hesaplama</string>
     <string name="nav_location">Konum</string>
     <string name="nav_format">Etiket</string>
-    <string name="nav_shizuku">Shizuku</string>
+    <string name="nav_settings">Ayarlar</string>
+    <string name="nav_back">Geri</string>
+    <string name="nav_permissions">İzinler</string>
+
+    <string name="settings_calculation_hint">Yöntem, açılar, kaydırmalar ve kurallar</string>
+    <string name="settings_format_hint">Operatör etiketi şablonu ve SIM</string>
+    <string name="settings_tile_hint">Hızlı Ayarlar kutucuğu</string>
+    <string name="settings_widget_hint">Ana ekran widget\'ı</string>
+    <string name="settings_permissions_hint">Shizuku, telefon durumu, bildirimler, pil</string>
 
     <string name="calc_method">Hesaplama yöntemi</string>
     <string name="calc_method_modified">Özelleştirildi</string>
