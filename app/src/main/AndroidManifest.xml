@@ -66,6 +66,16 @@
                 android:value="false" />
         </service>
 
+        <activity
+            android:name=".widget.WidgetConfigActivity"
+            android:exported="true"
+            android:label="@string/widget_config_title"
+            android:theme="@style/Theme.PrayerBar">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".widget.PrayerWidgetProvider"
             android:exported="true"
