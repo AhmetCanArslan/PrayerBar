@@ -7,7 +7,6 @@ import io.github.meypod.adhan_kotlin.MidnightMethod
 import io.github.meypod.adhan_kotlin.PrayerAdjustments
 import kotlinx.serialization.Serializable
 
-/** A place prayer times are computed for. Coordinates only — no city database is bundled. */
 @Serializable
 data class SavedLocation(
     val id: String,
@@ -16,7 +15,6 @@ data class SavedLocation(
     val longitude: Double,
 )
 
-/** Per-prayer manual offsets in minutes, applied on top of the calculated times. */
 @Serializable
 data class Adjustments(
     val fajr: Int = 0,
@@ -62,36 +60,17 @@ data class Adjustments(
     }
 }
 
-/**
- * The Quick Settings tile is a surface of its own, not a copy of the carrier label: it has two text
- * lines and an icon where the label has a single cramped string, it needs no Shizuku to draw, and it
- * is switched on and off separately. Everything it does not share with the label lives here.
- */
 @Serializable
 data class TileSettings(
-    /**
-     * Whether the app keeps the tile current in the background. Independent of
-     * [PrayerSettings.enabled]: the tile can run with the carrier label switched off, and vice versa.
-     */
+
     val enabled: Boolean = false,
-    /** Blank only in a blob written before the tile had a template of its own. */
     val template: String = "",
-    /** Blank means no second line. */
     val subtitleTemplate: String = "",
     val showIcon: Boolean = true,
-    /**
-     * Minutes before the prayer at which the tile switches to its active (accent-coloured) state.
-     * 0 disables the highlight. This is the only colour Quick Settings lets an app drive.
-     */
     val highlightMinutes: Int = 0,
 ) {
-    /** The label template actually used. The carrier one is only ever a migration fallback. */
     fun labelTemplate(): String = template.ifBlank { PrayerSettings.defaultTemplate() }
 
-    /**
-     * True when a line drifts between prayer boundaries, so the tile has to be redrawn on the minute
-     * tick rather than only when a boundary passes.
-     */
     val hasCountdown: Boolean
         get() = CarrierTemplate.hasCountdownToken(labelTemplate()) ||
             CarrierTemplate.hasCountdownToken(subtitleTemplate)
@@ -101,7 +80,6 @@ data class TileSettings(
     }
 }
 
-/** Everything the app persists, stored as a single JSON blob in DataStore. */
 @Serializable
 data class PrayerSettings(
     val parameters: CalculationParameters = CalculationMethod.TURKEY.parameters,
@@ -111,30 +89,31 @@ data class PrayerSettings(
     val activeLocationId: String? = null,
     val template: String = defaultTemplate(),
     val trackedPrayers: Set<PrayerName> = OBLIGATORY_PRAYERS,
-    /** Empty means "every active SIM". */
     val targetSubIds: List<Int> = emptyList(),
     val enabled: Boolean = false,
     val use24Hour: Boolean = true,
     val lastAppliedText: String? = null,
     val tile: TileSettings = TileSettings(),
+    val widgets: Map<Int, WidgetSettings> = emptyMap(),
 ) {
-    /** True while at least one surface is switched on and so needs the background machinery. */
     val hasActiveSurface: Boolean get() = enabled || tile.enabled
+
+    fun widget(appWidgetId: Int): WidgetSettings = widgets[appWidgetId] ?: WidgetSettings()
+
+    fun withWidget(appWidgetId: Int, transform: (WidgetSettings) -> WidgetSettings): PrayerSettings =
+        copy(widgets = widgets + (appWidgetId to transform(widget(appWidgetId))))
 
     val activeLocation: SavedLocation?
         get() = locations.firstOrNull { it.id == activeLocationId } ?: locations.firstOrNull()
 
-    /** Nothing can be computed before a location exists. */
     val isConfigured: Boolean get() = activeLocation != null
 
     companion object {
-        /** Locale-spelled, so an English user is not handed a Turkish-looking template. */
         fun defaultTemplate(locale: java.util.Locale = java.util.Locale.getDefault()): String =
             TemplateToken.Prayer.spelling(locale) + " " + TemplateToken.Time.spelling(locale)
     }
 }
 
-/** Whether the user edited the angles away from the selected method's canonical values. */
 fun CalculationParameters.isMethodModified(): Boolean {
     val base = method.parameters
     return fajrAngle != base.fajrAngle ||

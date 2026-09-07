@@ -6,9 +6,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-/** Clock and countdown formatting, kept free of Android APIs so it can be unit tested. */
 object CountdownFormat {
-
     private val FORMAT_24H: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     private val FORMAT_12H: DateTimeFormatter = DateTimeFormatter.ofPattern("h:mm a")
 
@@ -22,7 +20,6 @@ object CountdownFormat {
         .withZone(zone)
         .format(instant)
 
-    /** Compact remaining time for the carrier label: `42dk`, `1sa 05dk`, `42m`, `1h 05m`. */
     fun remainingShort(remaining: Duration, locale: Locale = Locale.getDefault()): String {
         val total = remaining.coerceAtLeast(Duration.ZERO)
         val hours = total.toHours()
@@ -37,7 +34,18 @@ object CountdownFormat {
         }
     }
 
-    /** `HH:mm:ss` for the on-screen hero countdown. */
+    fun remainingChronometer(remaining: Duration, locale: Locale = Locale.getDefault()): String {
+        val total = remaining.coerceAtLeast(Duration.ZERO)
+        val hours = total.toHours()
+        val minutes = total.toMinutes() % 60
+        val seconds = total.seconds % 60
+        return if (hours > 0) {
+            String.format(locale, "%d:%02d:%02d", hours, minutes, seconds)
+        } else {
+            String.format(locale, "%02d:%02d", minutes, seconds)
+        }
+    }
+
     fun remainingClock(remaining: Duration, locale: Locale = Locale.getDefault()): String {
         val total = remaining.coerceAtLeast(Duration.ZERO)
         return String.format(
