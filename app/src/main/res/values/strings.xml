@@ -125,4 +125,36 @@
     <string name="tile_color_hint">Android tints Quick Settings icons to match the system theme, so the per-prayer colour below is what you see in this app — on the panel itself it survives only on skins that skip that tint. The highlight above is the colour the platform does let an app control.</string>
     <string name="tile_no_location">Set a location</string>
     <string name="calc_rules">Rules</string>
+
+    <string name="nav_widget">Widget</string>
+    <string name="widget_description">Next prayer, the countdown to it, and the rest of the day\'s times.</string>
+    <string name="widget_preview_remaining">42 min</string>
+    <string name="widget_title">Home screen widget</string>
+    <string name="widget_none">No widget placed yet.</string>
+    <string name="widget_none_hint">Long-press an empty spot on the home screen, pick Widgets, then PrayerBar. It resizes from 1x1 to 4x4 and rearranges itself at every size.</string>
+    <string name="widget_add">Add widget</string>
+    <string name="widget_add_failed">Your launcher cannot place widgets from inside an app. Long-press the home screen instead.</string>
+    <string name="widget_instance">Widget %1$d</string>
+    <string name="widget_config_title">Customise widget</string>
+    <string name="widget_config_done">Done</string>
+    <string name="widget_content">Times shown</string>
+    <string name="widget_content_hint">Which times the list holds. The countdown always points at the next tracked time, whether or not it is listed here. A small widget shows as many of these as fit, upcoming ones first.</string>
+    <string name="widget_appearance">Appearance</string>
+    <string name="widget_show_countdown">Countdown</string>
+    <string name="widget_show_countdown_hint">Off leaves the next prayer\'s clock time as the headline.</string>
+    <string name="widget_show_seconds">Seconds</string>
+    <string name="widget_show_seconds_hint">Ticks every second, counted by the launcher itself rather than by a refresh — so it costs no extra battery.</string>
+    <string name="widget_show_progress">Progress bar</string>
+    <string name="widget_show_progress_hint">How far the gap between the last time and the next one has run.</string>
+    <string name="widget_show_icon">Prayer icon</string>
+    <string name="widget_use_prayer_color">Per-prayer colour</string>
+    <string name="widget_use_prayer_color_hint">Dawn violet through to night blue. Off keeps one flat accent all day.</string>
+    <string name="widget_show_hijri">Hijri date</string>
+    <string name="widget_show_location">Location name</string>
+    <string name="widget_background">Background</string>
+    <string name="widget_background_hint">Fully transparent leaves only the text on the wallpaper.</string>
+    <string name="widget_alpha">%1$d%%</string>
+    <string name="widget_follow_system">Follow system theme</string>
+    <string name="widget_follow_system_hint">Off pins the dark palette, which stays readable on a dark wallpaper under a light system theme.</string>
+    <string name="widget_size_hint">Resize the widget on the home screen: 1x1 shows only the countdown, wider adds the clock time and the day\'s times, taller stacks them into a list.</string>
 </resources>

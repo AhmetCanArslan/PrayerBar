@@ -123,4 +123,36 @@
     <string name="tile_color_hint">Android hızlı ayarlar ikonlarını sistem temasına göre boyuyor; aşağıdaki vakit renkleri bu uygulamada göründüğü gibi. Panelde ise ancak bu boyamayı atlayan arayüzlerde korunur. Yukarıdaki vurgu, platformun uygulamaya bıraktığı tek renk.</string>
     <string name="tile_no_location">Konum ekle</string>
     <string name="calc_rules">Kurallar</string>
+
+    <string name="nav_widget">Widget</string>
+    <string name="widget_description">Sonraki vakit, ona kalan süre ve günün diğer vakitleri.</string>
+    <string name="widget_preview_remaining">42 dk</string>
+    <string name="widget_title">Ana ekran widget\'ı</string>
+    <string name="widget_none">Henüz widget eklenmedi.</string>
+    <string name="widget_none_hint">Ana ekranda boş bir yere uzun basın, Widget\'lar\'ı ve ardından PrayerBar\'ı seçin. 1x1\'den 4x4\'e kadar yeniden boyutlanır ve her boyutta düzenini değiştirir.</string>
+    <string name="widget_add">Widget ekle</string>
+    <string name="widget_add_failed">Başlatıcınız uygulama içinden widget yerleştiremiyor. Bunun yerine ana ekrana uzun basın.</string>
+    <string name="widget_instance">Widget %1$d</string>
+    <string name="widget_config_title">Widget\'ı özelleştir</string>
+    <string name="widget_config_done">Bitti</string>
+    <string name="widget_content">Gösterilen vakitler</string>
+    <string name="widget_content_hint">Listede hangi vakitlerin yer alacağı. Geri sayım, burada listelensin ya da listelenmesin, her zaman sonraki takip edilen vakti gösterir. Küçük bir widget bunlardan sığdığı kadarını, önce yaklaşanları gösterir.</string>
+    <string name="widget_appearance">Görünüm</string>
+    <string name="widget_show_countdown">Geri sayım</string>
+    <string name="widget_show_countdown_hint">Kapalıyken başlıkta sonraki vaktin saati kalır.</string>
+    <string name="widget_show_seconds">Saniyeler</string>
+    <string name="widget_show_seconds_hint">Her saniye ilerler; yenileme yerine başlatıcının kendisi sayar, bu yüzden fazladan pil harcamaz.</string>
+    <string name="widget_show_progress">İlerleme çubuğu</string>
+    <string name="widget_show_progress_hint">Önceki vakitle sonraki arasındaki sürenin ne kadarının geçtiği.</string>
+    <string name="widget_show_icon">Vakit simgesi</string>
+    <string name="widget_use_prayer_color">Vakte göre renk</string>
+    <string name="widget_use_prayer_color_hint">Şafak morundan gece mavisine. Kapalıyken gün boyu tek bir vurgu rengi kalır.</string>
+    <string name="widget_show_hijri">Hicri tarih</string>
+    <string name="widget_show_location">Konum adı</string>
+    <string name="widget_background">Arka plan</string>
+    <string name="widget_background_hint">Tamamen saydam olduğunda duvar kâğıdının üzerinde yalnızca yazı kalır.</string>
+    <string name="widget_alpha">%%%1$d</string>
+    <string name="widget_follow_system">Sistem temasını izle</string>
+    <string name="widget_follow_system_hint">Kapalıyken koyu palet sabitlenir; açık sistem temasında koyu bir duvar kâğıdı üzerinde okunaklı kalır.</string>
+    <string name="widget_size_hint">Widget\'ı ana ekranda yeniden boyutlandırın: 1x1 yalnızca geri sayımı, daha genişi saati ve günün vakitlerini, daha uzunu bunları liste hâlinde gösterir.</string>
 </resources>
