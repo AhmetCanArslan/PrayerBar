@@ -4,6 +4,7 @@ import androidx.test.core.app.ApplicationProvider
 import com.arslan.prayerbar.carrier.CarrierNameManager
 import com.arslan.prayerbar.carrier.CarrierResult
 import com.arslan.prayerbar.carrier.ShizukuHelper
+import com.arslan.prayerbar.statusbar.StatusBarIcons
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -30,6 +31,12 @@ class NoShizukuResilienceTest {
         assertFalse(ShizukuHelper.isShizukuAvailable())
         assertFalse(ShizukuHelper.hasPermission())
         assertFalse(ShizukuHelper.executeShellCommand(arrayOf("id")))
+    }
+
+    @Test
+    fun `status bar write reports failure instead of throwing`() {
+        assertFalse(StatusBarIcons.apply(context, "1sa", description = "1 saat kaldi"))
+        assertFalse(StatusBarIcons.clear(context))
     }
 
     @Test
