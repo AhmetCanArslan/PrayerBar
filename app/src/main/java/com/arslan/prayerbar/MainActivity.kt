@@ -82,6 +82,7 @@ import com.arslan.prayerbar.ui.settings.SettingsDetail
 import com.arslan.prayerbar.ui.settings.SettingsScreen
 import com.arslan.prayerbar.ui.settings.screen
 import com.arslan.prayerbar.ui.settings.ShizukuScreen
+import com.arslan.prayerbar.ui.settings.StatusBarScreen
 import com.arslan.prayerbar.ui.settings.TileScreen
 import com.arslan.prayerbar.ui.settings.WIDGET_PREVIEW_CAPACITY
 import com.arslan.prayerbar.ui.settings.WidgetScreen
@@ -353,6 +354,18 @@ private fun PrayerBarNavHost(
                 }
             }
 
+            screen<Route.StatusBar> {
+                SettingsDetail(Route.StatusBar) {
+                    StatusBarScreen(
+                        settings = state.settings,
+                        preview = state.statusBarPreview,
+                        hasShizuku = state.shizuku.granted,
+                        onEnabled = viewModel::setStatusBarEnabled,
+                        onTemplate = viewModel::setStatusBarTemplate,
+                    )
+                }
+            }
+
             screen<Route.Notification> {
                 SettingsDetail(Route.Notification) {
                     NotificationScreen(
@@ -425,6 +438,7 @@ private fun NavDestination?.titleRes(): Int = when {
     hasRoute<Route.Calculation>() -> R.string.nav_calculation
     hasRoute<Route.Format>() -> R.string.nav_format
     hasRoute<Route.Tile>() -> R.string.nav_tile
+    hasRoute<Route.StatusBar>() -> R.string.nav_status_bar
     hasRoute<Route.Notification>() -> R.string.nav_notification
     hasRoute<Route.Widget>() -> R.string.nav_widget
     hasRoute<Route.Permissions>() -> R.string.nav_permissions

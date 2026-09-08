@@ -80,6 +80,7 @@ data class MainUiState(
     val tomorrow: DayTimes? = null,
     val previewText: String = "",
     val tilePreview: TileContent? = null,
+    val statusBarPreview: String = "",
     val notificationPreview: NotificationContent? = null,
     val widgetIds: List<Int> = emptyList(),
     val simSlots: List<SimSlot> = emptyList(),
@@ -151,6 +152,10 @@ class MainViewModel(
             container.carrierApplier.preview(it, settings.template, now, settings.use24Hour)
         }.orEmpty()
         val tilePreview = TileRenderer.render(getApplication(), settings, next, now)
+        val statusBarPreview = next?.let {
+            container.statusBarApplier
+                .preview(it, settings.statusBar.labelTemplate(), now, settings.use24Hour)
+        }.orEmpty()
         val notificationPreview = NotificationRenderer.render(
             context = getApplication(),
             settings = settings,
@@ -166,6 +171,7 @@ class MainViewModel(
                 tomorrow = tomorrow,
                 previewText = preview,
                 tilePreview = tilePreview,
+                statusBarPreview = statusBarPreview,
                 notificationPreview = notificationPreview,
             )
         }
@@ -218,6 +224,34 @@ class MainViewModel(
             } else {
                 if (!settings.hasActiveSurface) stopBackgroundWork()
                 PrayerTileService.refresh(getApplication())
+            }
+        }
+    }
+
+    fun setStatusBarEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val settings = container.settingsRepository
+                .update { it.copy(statusBar = it.statusBar.copy(enabled = enabled)) }
+            if (enabled) {
+                startBackgroundWork()
+                val outcome = withContext(Dispatchers.IO) {
+                    SurfaceRefresh.run(getApplication(), force = true)
+                }
+                container.alarmScheduler.schedule(outcome.next)
+            } else {
+                // The icons stay in the bar until somebody takes them out, so this cannot wait
+                // for the next refresh.
+                withContext(Dispatchers.IO) { container.statusBarApplier.clear() }
+                if (!settings.hasActiveSurface) stopBackgroundWork()
+            }
+        }
+    }
+
+    fun setStatusBarTemplate(template: String) {
+        viewModelScope.launch {
+            val settings = commit { it.copy(statusBar = it.statusBar.copy(template = template)) }
+            if (settings.statusBar.enabled) {
+                withContext(Dispatchers.IO) { container.statusBarApplier.apply(force = true) }
             }
         }
     }

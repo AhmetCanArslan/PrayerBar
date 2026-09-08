@@ -31,6 +31,17 @@ class ScreenWakeReceiver : BroadcastReceiver() {
                         .any { settings.widget(it).hasCountdown }
                     val notificationDrifts = settings.notification.enabled &&
                         settings.notification.hasCountdown
+                    // SystemUI drops every slot it holds when it restarts, and nothing tells the
+                    // app that happened. An unlock rewrites the label even when it has not
+                    // changed, so a label with no countdown in it cannot sit missing until the
+                    // next prayer boundary.
+                    val relit = intent.action == Intent.ACTION_SCREEN_ON
+                    val statusBarDrifts = settings.statusBar.enabled &&
+                        (settings.statusBar.hasCountdown || relit)
+                    if (statusBarDrifts) {
+                        val outcome = container.statusBarApplier.apply(force = relit)
+                        Log.d(TAG, "wake -> status bar ${outcome.text} (${outcome.result})")
+                    }
                     if (notificationDrifts) {
                         // The chronometer ticks itself; this is for the bar and the {kalan} tokens.
                         val next = container.resolver

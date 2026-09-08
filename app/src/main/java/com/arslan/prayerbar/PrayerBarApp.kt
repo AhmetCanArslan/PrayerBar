@@ -10,6 +10,7 @@ import com.arslan.prayerbar.data.SettingsRepository
 import com.arslan.prayerbar.prayer.NextPrayerResolver
 import com.arslan.prayerbar.prayer.PrayerTimesCalculator
 import com.arslan.prayerbar.schedule.PrayerAlarmScheduler
+import com.arslan.prayerbar.statusbar.StatusBarApplier
 import com.arslan.prayerbar.schedule.SafetyNetWorker
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -25,6 +26,9 @@ class AppContainer(private val context: Context) {
     val resolver: NextPrayerResolver by lazy { NextPrayerResolver(calculator) }
     val carrierApplier: CarrierApplier by lazy {
         CarrierApplier(context, settingsRepository, resolver)
+    }
+    val statusBarApplier: StatusBarApplier by lazy {
+        StatusBarApplier(context, settingsRepository, resolver)
     }
     val alarmScheduler: PrayerAlarmScheduler by lazy { PrayerAlarmScheduler(context) }
 

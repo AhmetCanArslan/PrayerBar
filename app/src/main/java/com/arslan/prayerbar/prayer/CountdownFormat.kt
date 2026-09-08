@@ -34,6 +34,20 @@ object CountdownFormat {
         }
     }
 
+    /**
+     * The countdown as the status bar spells it: the same shape as the clock a few centimetres to
+     * its left, which is both the most compact form and the one that needs no unit spelled out.
+     * Under an hour the hour is dropped and the minutes stand alone. Every reading has its own
+     * drawable, so it costs a single icon slot.
+     */
+    fun remainingCompact(remaining: Duration, locale: Locale = Locale.getDefault()): String {
+        val total = remaining.coerceAtLeast(Duration.ZERO)
+        val hours = total.toHours()
+        val minutes = total.toMinutes() % 60
+        if (hours == 0L) return String.format(locale, "%d", minutes)
+        return String.format(locale, "%d:%02d", hours, minutes)
+    }
+
     fun remainingChronometer(remaining: Duration, locale: Locale = Locale.getDefault()): String {
         val total = remaining.coerceAtLeast(Duration.ZERO)
         val hours = total.toHours()

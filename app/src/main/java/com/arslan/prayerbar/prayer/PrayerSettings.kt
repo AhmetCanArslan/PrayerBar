@@ -83,6 +83,26 @@ data class TileSettings(
 }
 
 @Serializable
+data class StatusBarSettings(
+    val enabled: Boolean = false,
+    val template: String = "",
+    /** What is standing in the bar right now, so a refresh can tell a change from a no-op. */
+    val lastAppliedText: String? = null,
+) {
+    fun labelTemplate(): String = template.ifBlank { defaultTemplate() }
+
+    val hasCountdown: Boolean
+        get() = CarrierTemplate.hasCountdownToken(labelTemplate())
+
+    companion object {
+        /** Only a handful of characters fit beside the system icons, so the default is the
+         * countdown on its own. */
+        fun defaultTemplate(locale: java.util.Locale = java.util.Locale.getDefault()): String =
+            TemplateToken.Remaining.spelling(locale)
+    }
+}
+
+@Serializable
 data class PrayerSettings(
     val parameters: CalculationParameters = CalculationMethod.TURKEY.parameters,
     val adjustments: Adjustments = Adjustments(),
@@ -96,10 +116,12 @@ data class PrayerSettings(
     val use24Hour: Boolean = true,
     val lastAppliedText: String? = null,
     val tile: TileSettings = TileSettings(),
+    val statusBar: StatusBarSettings = StatusBarSettings(),
     val notification: NotificationSettings = NotificationSettings(),
     val widgets: Map<Int, WidgetSettings> = emptyMap(),
 ) {
-    val hasActiveSurface: Boolean get() = enabled || tile.enabled || notification.enabled
+    val hasActiveSurface: Boolean
+        get() = enabled || tile.enabled || notification.enabled || statusBar.enabled
 
     fun widget(appWidgetId: Int): WidgetSettings = widgets[appWidgetId] ?: WidgetSettings()
 

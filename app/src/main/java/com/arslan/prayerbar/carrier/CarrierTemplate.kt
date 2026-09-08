@@ -45,6 +45,8 @@ object CarrierTemplate {
         zone: ZoneId = ZoneId.systemDefault(),
         use24Hour: Boolean = true,
         locale: Locale = Locale.getDefault(),
+        // The status bar pays a slot per character, so it spells the countdown its own way.
+        remainingFormat: (Duration, Locale) -> String = CountdownFormat::remainingShort,
     ): String {
         val remaining = Duration.between(now, next.at)
         val previousLabel = next.previousName?.let(labelOf).orEmpty()
@@ -57,8 +59,8 @@ object CarrierTemplate {
             "prayer" to labelOf(next.name),
             "saat" to CountdownFormat.clock(next.at, zone, use24Hour, locale),
             "time" to CountdownFormat.clock(next.at, zone, use24Hour, locale),
-            "kalan" to CountdownFormat.remainingShort(remaining, locale),
-            "remaining" to CountdownFormat.remainingShort(remaining, locale),
+            "kalan" to remainingFormat(remaining, locale),
+            "remaining" to remainingFormat(remaining, locale),
             "onceki" to previousLabel,
             "previous" to previousLabel,
             "hicri" to hijri,
