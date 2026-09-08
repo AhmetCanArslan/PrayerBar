@@ -29,7 +29,12 @@ object SurfaceRefresh {
             PrayerWidgetProvider.refresh(context, settings)
             return RefreshOutcome(true, outcome.next, outcome.text, outcome.result)
         }
-        if (!settings.tile.enabled && !PrayerWidgetProvider.hasWidgets(context)) {
+        // The status notification needs no refresh of its own here — the service posts it from the
+        // resolved prayer below — but it does keep the service, and this refresh, alive.
+        if (!settings.tile.enabled &&
+            !settings.notification.enabled &&
+            !PrayerWidgetProvider.hasWidgets(context)
+        ) {
             return RefreshOutcome(active = false)
         }
         val next = container.resolver

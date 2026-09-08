@@ -32,6 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardOptions
 import com.arslan.prayerbar.R
+import com.arslan.prayerbar.location.CoordinateLabel
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.ui.components.SectionCard
 
@@ -62,6 +63,7 @@ fun LocationScreen(
                     value = label,
                     onValueChange = { label = it },
                     label = { Text(stringResource(R.string.location_label)) },
+                    supportingText = { Text(stringResource(R.string.location_label_hint)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -138,11 +140,20 @@ fun LocationScreen(
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.weight(1f),
                         )
-                        Text(
-                            text = "%.3f, %.3f".format(location.latitude, location.longitude),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                        // The place name, not the coordinates — and nothing at all once the name
+                        // is already the label. Coordinates only stand in while no name is known.
+                        val detail = when (location.city) {
+                            null -> CoordinateLabel.of(location.latitude, location.longitude)
+                            location.label -> null
+                            else -> location.city
+                        }
+                        if (detail != null) {
+                            Text(
+                                text = detail,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                         IconButton(onClick = { onDelete(location.id) }) {
                             Icon(
                                 Icons.Rounded.Delete,

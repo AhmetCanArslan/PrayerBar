@@ -1,20 +1,15 @@
 package com.arslan.prayerbar.schedule
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
-import com.arslan.prayerbar.MainActivity
 import com.arslan.prayerbar.PrayerBarApp
-import com.arslan.prayerbar.R
+import com.arslan.prayerbar.notification.PrayerNotifier
 import com.arslan.prayerbar.tile.TileRenderer
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,8 +21,10 @@ import kotlinx.coroutines.withContext
  * minutes: after a long idle the label was only refreshed once the user opened the app or the next
  * boundary alarm fired. A foreground service is the only way to hold a live SCREEN_ON registration.
  *
- * It runs for either surface — the carrier label or the Quick Settings tile — and stops itself once
- * both are off.
+ * It runs for any of the surfaces — the carrier label, the Quick Settings tile, the status
+ * notification or a placed widget — and stops itself once they are all off. Its mandatory
+ * notification is built by [PrayerNotifier]: the prayer status when that surface is on, a bare
+ * notice otherwise.
  */
 class CarrierService : android.app.Service() {
 
@@ -37,8 +34,10 @@ class CarrierService : android.app.Service() {
 
     override fun onCreate() {
         super.onCreate()
-        createChannel()
-        startForegroundCompat(getString(R.string.service_notification_text))
+        PrayerNotifier.createChannels(this)
+        // Settings live on disk and startForeground cannot wait for them: post whatever was last
+        // shown, then let onStartCommand replace it a few milliseconds later.
+        startForegroundCompat(PrayerNotifier.placeholder(this))
         receiver = ScreenWakeReceiver.register(this)
         Log.d(TAG, "started")
     }
@@ -54,11 +53,15 @@ class CarrierService : android.app.Service() {
                     stopSelf()
                     return@withContext
                 }
-                // In tile-only mode there is no carrier text to report, so the notification borrows
+                // In tile-only mode there is no carrier text to report, so the bare notice borrows
                 // the tile's own label rather than sitting on a stale one.
                 val text = outcome.text
                     ?: TileRenderer.render(this@CarrierService, settings, outcome.next).label
-                updateNotification(text)
+                // startForeground rather than notify: the status and the bare notice sit in
+                // different channels, and a switch between them has to go through the service.
+                startForegroundCompat(
+                    PrayerNotifier.build(this@CarrierService, settings, outcome.next, text),
+                )
             }
         }
         return START_STICKY
@@ -70,69 +73,22 @@ class CarrierService : android.app.Service() {
         super.onDestroy()
     }
 
-    private fun createChannel() {
-        val manager = getSystemService(NotificationManager::class.java)
-        // IMPORTANCE_LOW: no sound, no heads-up. The notification itself cannot be hidden — a
-        // foreground service must show one — but the user can silence the channel.
-        val channel = NotificationChannel(
-            CHANNEL_ID,
-            getString(R.string.service_channel_name),
-            NotificationManager.IMPORTANCE_LOW,
-        ).apply {
-            description = getString(R.string.service_channel_description)
-            setShowBadge(false)
-        }
-        manager.createNotificationChannel(channel)
-    }
-
-    private fun notification(text: String): Notification {
-        val open = PendingIntent.getActivity(
-            this,
-            0,
-            Intent(this, MainActivity::class.java),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-        return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setContentTitle(getString(R.string.app_name))
-            .setContentText(text)
-            // Android forbids hiding a foreground-service notification, but a long-press opens the
-            // channel settings where the user can silence or minimise it — say so on the notification.
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(text + "\n\n" + getString(R.string.service_notification_hint)),
-            )
-            .setSubText(getString(R.string.service_notification_hint))
-            .setContentIntent(open)
-            .setOngoing(true)
-            .setShowWhen(false)
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
-            .build()
-    }
-
-    private fun startForegroundCompat(text: String) {
-        val notification = notification(text)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIFICATION_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-            )
-        } else {
-            startForeground(NOTIFICATION_ID, notification)
-        }
-    }
-
-    private fun updateNotification(text: String) {
-        getSystemService(NotificationManager::class.java)
-            .notify(NOTIFICATION_ID, notification(text))
+    private fun startForegroundCompat(notification: Notification) {
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(
+                    PrayerNotifier.NOTIFICATION_ID,
+                    notification,
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
+                )
+            } else {
+                startForeground(PrayerNotifier.NOTIFICATION_ID, notification)
+            }
+        }.onFailure { Log.w(TAG, "foreground refused", it) }
     }
 
     companion object {
         private const val TAG = "CarrierService"
-        private const val CHANNEL_ID = "prayerbar-carrier"
-        private const val NOTIFICATION_ID = 42
 
         /** Safe from anywhere: a disabled or already-running service is a no-op. */
         fun start(context: Context) {

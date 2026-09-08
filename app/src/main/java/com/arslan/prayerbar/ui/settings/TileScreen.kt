@@ -15,13 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,12 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.arslan.prayerbar.R
-import com.arslan.prayerbar.carrier.CarrierTemplate
 import com.arslan.prayerbar.prayer.PRAYERS_IN_ORDER
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.TileSettings
-import com.arslan.prayerbar.prayer.TemplateToken
 import com.arslan.prayerbar.prayer.visual
 import com.arslan.prayerbar.tile.TileContent
 import com.arslan.prayerbar.ui.components.SectionCard
@@ -100,14 +96,11 @@ fun TileScreen(
         }
         item {
             SectionCard(title = stringResource(R.string.tile_label_template)) {
-                OutlinedTextField(
+                TemplateField(
                     value = tile.labelTemplate(),
                     onValueChange = onTemplate,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
+                    locale = locale,
                 )
-                PresetRow(locale = locale, selected = tile.labelTemplate(), onPick = onTemplate)
-                TokenRow(locale = locale) { onTemplate(tile.labelTemplate() + it) }
             }
         }
         item {
@@ -115,18 +108,11 @@ fun TileScreen(
                 title = stringResource(R.string.tile_subtitle_template),
                 supporting = stringResource(R.string.tile_subtitle_hint),
             ) {
-                OutlinedTextField(
+                TemplateField(
                     value = tile.subtitleTemplate,
                     onValueChange = onSubtitleTemplate,
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-                PresetRow(
                     locale = locale,
-                    selected = tile.subtitleTemplate,
-                    onPick = onSubtitleTemplate,
                 )
-                TokenRow(locale = locale) { onSubtitleTemplate(tile.subtitleTemplate + it) }
             }
         }
         item {
@@ -226,43 +212,6 @@ private fun TilePreview(content: TileContent) {
                     )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun PresetRow(
-    locale: java.util.Locale,
-    selected: String,
-    onPick: (String) -> Unit,
-) {
-    Text(
-        text = stringResource(R.string.format_presets),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        CarrierTemplate.presetsFor(locale).forEach { preset ->
-            FilterChip(
-                selected = selected == preset,
-                onClick = { onPick(preset) },
-                label = { Text(preset) },
-            )
-        }
-    }
-}
-
-@Composable
-private fun TokenRow(locale: java.util.Locale, onAppend: (String) -> Unit) {
-    Text(
-        text = stringResource(R.string.format_tokens),
-        style = MaterialTheme.typography.labelLarge,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
-    )
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        TemplateToken.entries.forEach { token ->
-            val spelling = token.spelling(locale)
-            AssistChip(onClick = { onAppend(spelling) }, label = { Text(spelling) })
         }
     }
 }

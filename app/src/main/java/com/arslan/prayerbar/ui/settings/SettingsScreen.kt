@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Security
 import androidx.compose.material.icons.rounded.Widgets
 import androidx.compose.material3.Card
@@ -61,6 +62,13 @@ fun SettingsScreen(onOpen: (Route) -> Unit, modifier: Modifier = Modifier) {
                 icon = Icons.Rounded.GridView,
                 title = stringResource(R.string.nav_tile),
                 supporting = stringResource(R.string.settings_tile_hint),
+                onOpen = onOpen,
+            )
+            SettingsRow(
+                route = Route.Notification,
+                icon = Icons.Rounded.Notifications,
+                title = stringResource(R.string.nav_notification),
+                supporting = stringResource(R.string.settings_notification_hint),
                 onOpen = onOpen,
             )
             SettingsRow(

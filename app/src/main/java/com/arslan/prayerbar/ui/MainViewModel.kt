@@ -19,7 +19,12 @@ import com.arslan.prayerbar.carrier.CarrierNameManager
 import com.arslan.prayerbar.carrier.CarrierResult
 import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.carrier.SimSlot
+import com.arslan.prayerbar.location.CityNames
+import com.arslan.prayerbar.location.CoordinateLabel
 import com.arslan.prayerbar.location.LocationProvider
+import com.arslan.prayerbar.notification.NotificationContent
+import com.arslan.prayerbar.notification.NotificationRenderer
+import com.arslan.prayerbar.notification.PrayerNotifier
 import com.arslan.prayerbar.schedule.CarrierService
 import com.arslan.prayerbar.schedule.SurfaceRefresh
 import com.arslan.prayerbar.tile.PrayerTileService
@@ -28,6 +33,7 @@ import com.arslan.prayerbar.tile.TileRenderer
 import com.arslan.prayerbar.prayer.Adjustments
 import com.arslan.prayerbar.prayer.DayTimes
 import com.arslan.prayerbar.prayer.NextPrayer
+import com.arslan.prayerbar.prayer.NotificationSettings
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.SavedLocation
@@ -74,6 +80,7 @@ data class MainUiState(
     val tomorrow: DayTimes? = null,
     val previewText: String = "",
     val tilePreview: TileContent? = null,
+    val notificationPreview: NotificationContent? = null,
     val widgetIds: List<Int> = emptyList(),
     val simSlots: List<SimSlot> = emptyList(),
     val shizuku: ShizukuState = ShizukuState(),
@@ -86,6 +93,7 @@ class MainViewModel(
     private val container: AppContainer,
 ) : AndroidViewModel(application) {
     private val locationProvider = LocationProvider(application)
+    private val cityNames = CityNames(application)
     private val zone: ZoneId get() = ZoneId.systemDefault()
     private val _state = MutableStateFlow(MainUiState())
     val state: StateFlow<MainUiState> = _state.asStateFlow()
@@ -105,6 +113,7 @@ class MainViewModel(
             }
         }
         refreshEnvironment()
+        nameUnnamedLocations()
     }
 
     fun refreshEnvironment() {
@@ -142,6 +151,14 @@ class MainViewModel(
             container.carrierApplier.preview(it, settings.template, now, settings.use24Hour)
         }.orEmpty()
         val tilePreview = TileRenderer.render(getApplication(), settings, next, now)
+        val notificationPreview = NotificationRenderer.render(
+            context = getApplication(),
+            settings = settings,
+            next = next,
+            today = today,
+            now = now,
+            zone = zone,
+        )
         _state.update {
             it.copy(
                 next = next,
@@ -149,6 +166,7 @@ class MainViewModel(
                 tomorrow = tomorrow,
                 previewText = preview,
                 tilePreview = tilePreview,
+                notificationPreview = notificationPreview,
             )
         }
     }
@@ -156,12 +174,18 @@ class MainViewModel(
     fun labelOf(prayer: PrayerName): String = container.carrierApplier.labelOf(prayer)
 
     private fun edit(transform: (PrayerSettings) -> PrayerSettings) {
-        viewModelScope.launch {
-            val settings = container.settingsRepository.update(transform)
+        viewModelScope.launch { commit(transform) }
+    }
 
-            PrayerWidgetProvider.refresh(getApplication(), settings)
-            rearm()
-        }
+    /** The write itself, for the callers that have more to do once it has landed. */
+    private suspend fun commit(transform: (PrayerSettings) -> PrayerSettings): PrayerSettings {
+        val settings = container.settingsRepository.update(transform)
+
+        PrayerWidgetProvider.refresh(getApplication(), settings)
+        // The notification is drawn from the same settings, so every edit reaches the shade.
+        if (settings.notification.enabled) CarrierService.start(getApplication())
+        rearm()
+        return settings
     }
 
     private fun editParameters(transform: (CalculationParameters) -> CalculationParameters) =
@@ -174,7 +198,8 @@ class MainViewModel(
                 startBackgroundWork()
                 applyNow(persistent = true)
             } else {
-                if (!settings.tile.enabled) stopBackgroundWork()
+                // The tile and the status notification live off the same service.
+                if (!settings.hasActiveSurface) stopBackgroundWork()
                 resetNow()
             }
         }
@@ -191,7 +216,7 @@ class MainViewModel(
                 }
                 container.alarmScheduler.schedule(outcome.next)
             } else {
-                if (!settings.enabled) stopBackgroundWork()
+                if (!settings.hasActiveSurface) stopBackgroundWork()
                 PrayerTileService.refresh(getApplication())
             }
         }
@@ -272,6 +297,36 @@ class MainViewModel(
     fun setTileHighlightMinutes(minutes: Int) =
         editTile { it.copy(highlightMinutes = minutes.coerceAtLeast(0)) }
 
+    fun editNotification(transform: (NotificationSettings) -> NotificationSettings) = edit {
+        it.copy(notification = transform(it.notification))
+    }
+
+    fun toggleNotificationPrayer(prayer: PrayerName) =
+        editNotification { it.togglePrayer(prayer) }
+
+    fun setNotificationEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            val settings = container.settingsRepository
+                .update { it.copy(notification = it.notification.copy(enabled = enabled)) }
+            if (enabled) {
+                startBackgroundWork()
+                val outcome = withContext(Dispatchers.IO) {
+                    SurfaceRefresh.run(getApplication(), force = true)
+                }
+                container.alarmScheduler.schedule(outcome.next)
+            } else if (settings.hasActiveSurface || PrayerWidgetProvider.hasWidgets(getApplication())) {
+                // Something else still needs the service: hand its notification back to the bare
+                // notice instead of tearing everything down.
+                CarrierService.start(getApplication())
+            } else {
+                stopBackgroundWork()
+            }
+        }
+    }
+
+    fun openNotificationChannelSettings() =
+        PrayerNotifier.openChannelSettings(getApplication(), _state.value.settings)
+
     fun editWidget(appWidgetId: Int, transform: (WidgetSettings) -> WidgetSettings) =
         edit { it.withWidget(appWidgetId, transform) }
 
@@ -311,17 +366,56 @@ class MainViewModel(
 
     fun selectLocation(id: String) = edit { it.copy(activeLocationId = id) }
 
-    fun addLocation(label: String, latitude: Double, longitude: Double) = edit { settings ->
-        val location = SavedLocation(
-            id = UUID.randomUUID().toString(),
-            label = label.ifBlank { "%.3f, %.3f".format(latitude, longitude) },
-            latitude = latitude.coerceIn(-90.0, 90.0),
-            longitude = longitude.coerceIn(-180.0, 180.0),
-        )
-        settings.copy(
-            locations = settings.locations + location,
-            activeLocationId = location.id,
-        )
+    /**
+     * Saves the coordinates straight away and asks the geocoder for the place name afterwards: the
+     * lookup is remote and can fail, and waiting on it would leave the screen doing nothing.
+     */
+    fun addLocation(label: String, latitude: Double, longitude: Double) {
+        viewModelScope.launch {
+            val location = SavedLocation(
+                id = UUID.randomUUID().toString(),
+                label = label.ifBlank { CoordinateLabel.of(latitude, longitude) },
+                latitude = latitude.coerceIn(-90.0, 90.0),
+                longitude = longitude.coerceIn(-180.0, 180.0),
+            )
+            commit { settings ->
+                settings.copy(
+                    locations = settings.locations + location,
+                    activeLocationId = location.id,
+                )
+            }
+            nameLocations(listOf(location))
+        }
+    }
+
+    /** Backfills the ones saved before there was a name to save — a coordinate label included. */
+    private fun nameUnnamedLocations() {
+        viewModelScope.launch {
+            nameLocations(container.settingsRepository.current().locations.filter { it.city == null })
+        }
+    }
+
+    private suspend fun nameLocations(locations: List<SavedLocation>) {
+        if (locations.isEmpty()) return
+        val names = withContext(Dispatchers.IO) {
+            locations.mapNotNull { location ->
+                cityNames.cityName(location.latitude, location.longitude)
+                    ?.let { location.id to it }
+            }
+        }.toMap()
+        if (names.isEmpty()) return
+        commit { settings ->
+            settings.copy(
+                locations = settings.locations.map { location ->
+                    val city = names[location.id] ?: return@map location
+                    location.copy(
+                        city = city,
+                        // A label the user typed stays theirs; a coordinate one was ours to replace.
+                        label = if (CoordinateLabel.looksLikeOne(location.label)) city else location.label,
+                    )
+                },
+            )
+        }
     }
 
     fun deleteLocation(id: String) = edit { settings ->

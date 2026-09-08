@@ -11,6 +11,7 @@ sealed interface Route {
     @Serializable data object Calculation : Route
     @Serializable data object Format : Route
     @Serializable data object Tile : Route
+    @Serializable data object Notification : Route
     @Serializable data object Widget : Route
     @Serializable data object Permissions : Route
 }

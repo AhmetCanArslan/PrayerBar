@@ -8,10 +8,13 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.arslan.prayerbar.PrayerBarApp
 import com.arslan.prayerbar.carrier.CarrierTemplate
+import com.arslan.prayerbar.notification.PrayerNotifier
 import com.arslan.prayerbar.tile.PrayerTileService
 import com.arslan.prayerbar.widget.PrayerWidgetProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.time.Instant
+import java.time.ZoneId
 
 class ScreenWakeReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -26,6 +29,14 @@ class ScreenWakeReceiver : BroadcastReceiver() {
                     val tileDrifts = settings.tile.enabled && settings.tile.hasCountdown
                     val widgetsDrift = PrayerWidgetProvider.ids(context)
                         .any { settings.widget(it).hasCountdown }
+                    val notificationDrifts = settings.notification.enabled &&
+                        settings.notification.hasCountdown
+                    if (notificationDrifts) {
+                        // The chronometer ticks itself; this is for the bar and the {kalan} tokens.
+                        val next = container.resolver
+                            .resolve(Instant.now(), settings, ZoneId.systemDefault())
+                        PrayerNotifier.post(context, settings, next)
+                    }
                     if (carrierDrifts) {
                         val outcome = container.carrierApplier.apply()
                         Log.d(TAG, "wake -> ${outcome.text} (${outcome.result}) skipped=${outcome.skipped}")

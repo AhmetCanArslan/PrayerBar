@@ -163,4 +163,26 @@
     <string name="widget_follow_system">Sistem temasını izle</string>
     <string name="widget_follow_system_hint">Kapalıyken koyu palet sabitlenir; açık sistem temasında koyu bir duvar kâğıdı üzerinde okunaklı kalır.</string>
     <string name="widget_size_hint">Widget\'ı ana ekranda yeniden boyutlandırın: 1x1 yalnızca geri sayımı, daha genişi saati ve günün vakitlerini, daha uzunu bunları liste hâlinde gösterir.</string>
+    <string name="nav_notification">Bildirim</string>
+    <string name="settings_notification_hint">Bildirim panelinde kalıcı vakit durumu</string>
+    <string name="status_channel_name">Vakit durumu</string>
+    <string name="status_channel_description">Sonraki vakti, ona kalan süreyi ve günün vakitlerini gösteren kalıcı bildirim. Sistem tarafından kapatmak için bu kanalı susturun veya gizleyin.</string>
+    <string name="status_preview">Bildirim önizleme</string>
+    <string name="status_expanded_hint">Bu, açılmış hâli. Kapalıyken panelde başlık satırı, iki satır yazı ve çubuk kalır.</string>
+    <string name="status_enabled">Vakit durumunu göster</string>
+    <string name="status_enabled_hint">PrayerBar arka planda yenilenirken zaten bir bildirim göstermek zorunda; bu ayar ikinci bir bildirim eklemek yerine o yeri devralır — açıkken zorunlu bildirim vakit durumuna dönüşür. Sade bildirimden ayrı, kendi kanalında durur.</string>
+    <string name="status_channel_settings">Bildirim kanalı ayarları</string>
+    <string name="status_template">Başlık</string>
+    <string name="status_subtitle">İkinci satır</string>
+    <string name="status_subtitle_hint">Başlığın altındaki satır. Ekran açıkken dakikada bir yenilenir.</string>
+    <string name="status_appearance">Görünüm</string>
+    <string name="status_chronometer">Canlı geri sayım</string>
+    <string name="status_chronometer_hint">Saatin durduğu köşede her saniye işler. Android kendi sayar, pil harcamaz.</string>
+    <string name="status_progress">İlerleme çubuğu</string>
+    <string name="status_progress_hint">Önceki vakitle sonraki arasındaki sürenin ne kadarının geçtiği.</string>
+    <string name="status_colorized">Renkli arka plan</string>
+    <string name="status_colorized_hint">Yalnızca simgeyi boyamak yerine bildirimin tamamını vaktin rengine boyar. Bunu ancak kalıcı bir bildirim yapabilir.</string>
+    <string name="status_timeline">Günün vakitleri</string>
+    <string name="status_timeline_hint">Bildirim açıldığında listelenir, sıradaki vakit koyu yazılır. Panel altı satır çiziyor; liste uzarsa geçmiş vakitler düşer.</string>
+    <string name="location_label_hint">Boş bırakırsan konumun düştüğü yerin adı yazılır.</string>
 </resources>

@@ -165,4 +165,26 @@
     <string name="widget_follow_system">Follow system theme</string>
     <string name="widget_follow_system_hint">Off pins the dark palette, which stays readable on a dark wallpaper under a light system theme.</string>
     <string name="widget_size_hint">Resize the widget on the home screen: 1x1 shows only the countdown, wider adds the clock time and the day\'s times, taller stacks them into a list.</string>
+    <string name="nav_notification">Notification</string>
+    <string name="settings_notification_hint">Ongoing prayer status in the shade</string>
+    <string name="status_channel_name">Prayer status</string>
+    <string name="status_channel_description">The ongoing notification with the next prayer, the countdown to it and the day\'s times. Silence or hide this channel to switch it off from the system side.</string>
+    <string name="status_preview">Notification preview</string>
+    <string name="status_expanded_hint">This is the pulled-open shape. Collapsed, the shade keeps the header, the two lines and the bar.</string>
+    <string name="status_enabled">Show the prayer status</string>
+    <string name="status_enabled_hint">PrayerBar already has to show one notification while it refreshes in the background, so this takes that slot over rather than adding a second one — with the status on, the mandatory notice becomes the status. It sits in a channel of its own, apart from the plain one.</string>
+    <string name="status_channel_settings">Notification channel settings</string>
+    <string name="status_template">Title</string>
+    <string name="status_subtitle">Second line</string>
+    <string name="status_subtitle_hint">The line under the title. It still refreshes on the minute while the screen is on.</string>
+    <string name="status_appearance">Appearance</string>
+    <string name="status_chronometer">Live countdown</string>
+    <string name="status_chronometer_hint">Ticks down every second in the corner where the time usually sits. Android counts it itself, so it costs no battery.</string>
+    <string name="status_progress">Progress bar</string>
+    <string name="status_progress_hint">How far the gap between the last time and the next one has run.</string>
+    <string name="status_colorized">Coloured background</string>
+    <string name="status_colorized_hint">Paints the whole notification in the prayer colour instead of tinting only the icon. Only an ongoing notification is allowed this.</string>
+    <string name="status_timeline">The day\'s times</string>
+    <string name="status_timeline_hint">Listed when the notification is pulled open, the next one in bold. The shade draws six lines, so a longer list drops the times already called.</string>
+    <string name="location_label_hint">Leave it empty to name the place after the town it falls in.</string>
 </resources>

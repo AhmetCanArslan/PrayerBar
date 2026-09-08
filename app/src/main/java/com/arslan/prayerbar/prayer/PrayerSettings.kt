@@ -13,6 +13,8 @@ data class SavedLocation(
     val label: String,
     val latitude: Double,
     val longitude: Double,
+    /** The place the coordinates fall in, once the geocoder has been asked. */
+    val city: String? = null,
 )
 
 @Serializable
@@ -94,9 +96,10 @@ data class PrayerSettings(
     val use24Hour: Boolean = true,
     val lastAppliedText: String? = null,
     val tile: TileSettings = TileSettings(),
+    val notification: NotificationSettings = NotificationSettings(),
     val widgets: Map<Int, WidgetSettings> = emptyMap(),
 ) {
-    val hasActiveSurface: Boolean get() = enabled || tile.enabled
+    val hasActiveSurface: Boolean get() = enabled || tile.enabled || notification.enabled
 
     fun widget(appWidgetId: Int): WidgetSettings = widgets[appWidgetId] ?: WidgetSettings()
 

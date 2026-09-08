@@ -77,6 +77,7 @@ import com.arslan.prayerbar.ui.settings.FormatScreen
 import com.arslan.prayerbar.ui.settings.LocalNavAnimatedVisibilityScope
 import com.arslan.prayerbar.ui.settings.LocalSharedTransitionScope
 import com.arslan.prayerbar.ui.settings.LocationScreen
+import com.arslan.prayerbar.ui.settings.NotificationScreen
 import com.arslan.prayerbar.ui.settings.SettingsDetail
 import com.arslan.prayerbar.ui.settings.SettingsScreen
 import com.arslan.prayerbar.ui.settings.screen
@@ -352,6 +353,22 @@ private fun PrayerBarNavHost(
                 }
             }
 
+            screen<Route.Notification> {
+                SettingsDetail(Route.Notification) {
+                    NotificationScreen(
+                        settings = state.settings,
+                        preview = state.notificationPreview,
+                        notificationsAllowed = state.shizuku.notificationsAllowed,
+                        labelOf = viewModel::labelOf,
+                        onEnabled = viewModel::setNotificationEnabled,
+                        onEdit = viewModel::editNotification,
+                        onTogglePrayer = viewModel::toggleNotificationPrayer,
+                        onOpenChannelSettings = viewModel::openNotificationChannelSettings,
+                        onRequestPermission = requestNotificationPermission,
+                    )
+                }
+            }
+
             screen<Route.Widget> {
                 SettingsDetail(Route.Widget) {
                     WidgetScreen(
@@ -408,6 +425,7 @@ private fun NavDestination?.titleRes(): Int = when {
     hasRoute<Route.Calculation>() -> R.string.nav_calculation
     hasRoute<Route.Format>() -> R.string.nav_format
     hasRoute<Route.Tile>() -> R.string.nav_tile
+    hasRoute<Route.Notification>() -> R.string.nav_notification
     hasRoute<Route.Widget>() -> R.string.nav_widget
     hasRoute<Route.Permissions>() -> R.string.nav_permissions
     else -> R.string.home_title
