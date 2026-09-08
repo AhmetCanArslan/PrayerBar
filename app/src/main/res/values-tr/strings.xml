@@ -185,4 +185,14 @@
     <string name="status_timeline">Günün vakitleri</string>
     <string name="status_timeline_hint">Bildirim açıldığında listelenir, sıradaki vakit koyu yazılır. Panel altı satır çiziyor; liste uzarsa geçmiş vakitler düşer.</string>
     <string name="location_label_hint">Boş bırakırsan konumun düştüğü yerin adı yazılır.</string>
+    <string name="nav_status_bar">Durum çubuğu</string>
+    <string name="settings_status_bar_hint">Etiketi durum çubuğu ikonu olarak göster</string>
+    <string name="status_bar_enabled">Durum çubuğunda göster</string>
+    <string name="status_bar_enabled_hint">Etiketi sistem ikonlarının yanına harf harf yazar. Shizuku gerekir.</string>
+    <string name="status_bar_preview">Önizleme</string>
+    <string name="status_bar_template">Etiket</string>
+    <string name="status_bar_length_hint">Çubuğa yaklaşık %1$d ikon sığıyor. 1:45 gibi bir sayaç tek parça çizildiği için bir ikon harcar; başka metin karakter başına bir ikon harcar. Sığmayan etiketi sistem tek bir noktaya indirir.</string>
+    <string name="status_bar_unsupported">%1$s için çizim yok, etiketten çıkarıldı.</string>
+    <string name="status_bar_needs_shizuku">Shizuku bağlı değil, durum çubuğuna yazılamaz.</string>
+    <string name="status_bar_reboot_hint">Sistem bu ikonları yeniden başlatmada siliyor. PrayerBar açılışta geri koyar.</string>
 </resources>

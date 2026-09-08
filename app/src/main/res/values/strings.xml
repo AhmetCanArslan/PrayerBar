@@ -187,4 +187,14 @@
     <string name="status_timeline">The day\'s times</string>
     <string name="status_timeline_hint">Listed when the notification is pulled open, the next one in bold. The shade draws six lines, so a longer list drops the times already called.</string>
     <string name="location_label_hint">Leave it empty to name the place after the town it falls in.</string>
+    <string name="nav_status_bar">Status bar</string>
+    <string name="settings_status_bar_hint">The label as status bar icons</string>
+    <string name="status_bar_enabled">Show in the status bar</string>
+    <string name="status_bar_enabled_hint">Spells the label out beside the system icons. Needs Shizuku.</string>
+    <string name="status_bar_preview">Preview</string>
+    <string name="status_bar_template">Label</string>
+    <string name="status_bar_length_hint">The bar fits about %1$d icons. A countdown like 1:45 is drawn in one piece and takes a single one; anything else costs one per character. A label too wide is collapsed into a single dot by the system.</string>
+    <string name="status_bar_unsupported">No glyph for %1$s — dropped from the label.</string>
+    <string name="status_bar_needs_shizuku">Shizuku is not connected, so nothing can be written to the status bar.</string>
+    <string name="status_bar_reboot_hint">The system drops these icons on reboot. PrayerBar puts them back as it starts.</string>
 </resources>
