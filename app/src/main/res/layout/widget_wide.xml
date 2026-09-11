@@ -19,7 +19,7 @@
         android:gravity="center_vertical"
         android:orientation="vertical"
         android:paddingHorizontal="14dp"
-        android:paddingVertical="10dp">
+        android:paddingVertical="7dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -29,8 +29,8 @@
 
             <ImageView
                 android:id="@+id/widget_icon"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
                 android:contentDescription="@null"
                 android:src="@drawable/ic_tile_prayer" />
 
@@ -41,30 +41,33 @@
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/widget_on_surface"
                 android:textFontWeight="600"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 tools:text="İkindi" />
 
             <TextView
                 android:id="@+id/widget_remaining"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/widget_on_surface"
                 android:textFontWeight="700"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 tools:text="1sa 42dk" />
             <Chronometer
                 android:id="@+id/widget_chronometer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:ellipsize="end"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/widget_on_surface"
                 android:textFontWeight="700"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:visibility="gone" />
 
             <TextView
@@ -72,26 +75,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
+                android:includeFontPadding="false"
                 android:maxLines="1"
                 android:textColor="@color/widget_on_surface_variant"
-                android:textSize="13sp"
+                android:textSize="12sp"
                 tools:text="16:42" />
         </LinearLayout>
-
-        <ProgressBar
-            android:id="@+id/widget_progress"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="5dp"
-            android:layout_marginTop="7dp"
-            android:max="1000"
-            android:progressDrawable="@drawable/widget_progress" />
 
         <LinearLayout
             android:id="@+id/widget_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="7dp"
+            android:layout_marginTop="5dp"
             android:baselineAligned="false"
             android:orientation="horizontal" />
     </LinearLayout>

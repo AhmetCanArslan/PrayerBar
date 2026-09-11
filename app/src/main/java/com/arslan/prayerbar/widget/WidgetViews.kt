@@ -125,13 +125,8 @@ object WidgetViews {
         views.setViewVisibility(R.id.widget_list, visibility(content.rows.isNotEmpty()))
         if (content.rows.isEmpty()) return
 
-        val itemLayout = if (spec.listIsHorizontal) {
-            R.layout.widget_item_column
-        } else {
-            R.layout.widget_item_row
-        }
         content.rows.forEach { row ->
-            val item = RemoteViews(context.packageName, itemLayout)
+            val item = RemoteViews(context.packageName, spec.shape.itemLayoutRes)
             val nameColor = if (row.isNext) content.accent else palette.onSurfaceVariant
             val timeColor = when {
                 row.isNext -> content.accent

@@ -75,8 +75,37 @@ class WidgetSurfaceTest {
         assertEquals(WidgetShape.Tiny, WidgetSizing.resolve(70, 70).shape)
         assertEquals(WidgetShape.Small, WidgetSizing.resolve(150, 70).shape)
         assertEquals(WidgetShape.Wide, WidgetSizing.resolve(320, 70).shape)
+        assertEquals(WidgetShape.Column, WidgetSizing.resolve(70, 150).shape)
         assertEquals(WidgetShape.Medium, WidgetSizing.resolve(150, 200).shape)
         assertEquals(WidgetShape.Large, WidgetSizing.resolve(320, 200).shape)
+    }
+
+    @Test
+    fun `a one cell column spends its height on prayer times`() {
+        val spec = WidgetSizing.resolve(70, 150)
+        assertEquals(WidgetShape.Column, spec.shape)
+        assertTrue(spec.listCapacity >= 3)
+        assertFalse(spec.listIsHorizontal)
+    }
+
+    @Test
+    fun `a tight two cell column still beats the single cell layout`() {
+        val spec = WidgetSizing.resolve(70, 110)
+        assertEquals(WidgetShape.Column, spec.shape)
+        assertTrue(spec.listCapacity >= 1)
+    }
+
+    @Test
+    fun `the column carries no progress bar so the times fit`() {
+        val widget = WidgetSettings()
+        val spec = WidgetSizing.resolve(70, 150)
+        val rendered = content(widget, spec.listCapacity)
+        val root = inflate(spec, widget, rendered)
+        assertNull(root.findViewById<View>(R.id.widget_progress))
+        assertEquals(
+            rendered.rows.size,
+            root.findViewById<LinearLayout>(R.id.widget_list).childCount,
+        )
     }
 
     @Test
@@ -84,6 +113,16 @@ class WidgetSurfaceTest {
         assertEquals(0, WidgetSizing.resolve(70, 70).listCapacity)
         assertEquals(0, WidgetSizing.resolve(150, 70).listCapacity)
         assertTrue(WidgetSizing.resolve(320, 300).listCapacity >= 5)
+    }
+
+    @Test
+    fun `the strip drops the progress bar to keep its times on screen`() {
+        val widget = WidgetSettings()
+        val spec = WidgetSizing.resolve(280, 72)
+        assertEquals(WidgetShape.Wide, spec.shape)
+        assertTrue(spec.listCapacity >= 4)
+        val root = inflate(spec, widget, content(widget, spec.listCapacity))
+        assertNull(root.findViewById<View>(R.id.widget_progress))
     }
 
     @Test
