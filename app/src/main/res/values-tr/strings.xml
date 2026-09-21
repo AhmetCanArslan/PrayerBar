@@ -184,6 +184,14 @@
     <string name="status_colorized_hint">Yalnızca simgeyi boyamak yerine bildirimin tamamını vaktin rengine boyar. Bunu ancak kalıcı bir bildirim yapabilir.</string>
     <string name="status_timeline">Günün vakitleri</string>
     <string name="status_timeline_hint">Bildirim açıldığında listelenir, sıradaki vakit koyu yazılır. Panel altı satır çiziyor; liste uzarsa geçmiş vakitler düşer.</string>
+    <string name="location_follow_title">Konumumu takip et</string>
+    <string name="location_follow_supporting">Vakitler telefonla birlikte gezer: konum arka planda yeniden okunur ve vakitler bulunduğun yere göre hesaplanır.</string>
+    <string name="location_follow_section">Güncel konum</string>
+    <string name="location_follow_waiting">İlk konum bekleniyor…</string>
+    <string name="location_follow_refresh">Şimdi güncelle</string>
+    <string name="location_follow_updated">%1$s güncellendi</string>
+    <string name="location_follow_never">Henüz okunmadı</string>
+    <string name="location_saved_section">Kayıtlı konumlar</string>
     <string name="location_label_hint">Boş bırakırsan konumun düştüğü yerin adı yazılır.</string>
     <string name="nav_status_bar">Durum çubuğu</string>
     <string name="settings_status_bar_hint">Etiketi durum çubuğu ikonu olarak göster</string>

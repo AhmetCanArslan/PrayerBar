@@ -25,6 +25,9 @@ object SurfaceRefresh {
         persistent: Boolean = false,
     ): RefreshOutcome {
         val container = PrayerBarApp.container(context)
+        // Before anything is drawn: following the phone means the times come from where it is now,
+        // not from where it was when the surface was last set up.
+        container.locationTracker.refresh()
         val settings = container.settingsRepository.current()
         // Independent of every other surface, and it takes its own icons back down when the user
         // switches it off, so it runs before the early return below.

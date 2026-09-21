@@ -115,6 +115,18 @@ class MainViewModel(
         }
         refreshEnvironment()
         nameUnnamedLocations()
+        followLocationIfDue()
+    }
+
+    /**
+     * Opening the app is a good moment to catch up on a move, but only if the fix is due: the
+     * tracker's own interval decides, so a quick visit costs nothing.
+     */
+    private fun followLocationIfDue() {
+        viewModelScope.launch {
+            val changed = withContext(Dispatchers.IO) { container.locationTracker.refresh() }
+            if (changed) onFollowedLocationMoved(container.settingsRepository.current())
+        }
     }
 
     fun refreshEnvironment() {
@@ -398,7 +410,57 @@ class MainViewModel(
     fun setUse24Hour(use24Hour: Boolean) = edit { it.copy(use24Hour = use24Hour) }
     fun setTargetSubIds(subIds: List<Int>) = edit { it.copy(targetSubIds = subIds) }
 
-    fun selectLocation(id: String) = edit { it.copy(activeLocationId = id) }
+    fun hasLocationPermission(): Boolean = locationProvider.hasPermission()
+
+    fun locationPermissionDenied() = message(R.string.location_permission_needed)
+
+    /** Picking a saved place is a decision to stop following the phone. */
+    fun selectLocation(id: String) = edit {
+        it.copy(activeLocationId = id, tracking = it.tracking.copy(enabled = false))
+    }
+
+    /**
+     * Turns the followed location on or off. Switching it on takes a fix straight away — waiting
+     * for the next surface refresh would leave the screen showing the old city for minutes.
+     */
+    fun setFollowLocation(enabled: Boolean) {
+        viewModelScope.launch {
+            commit { it.copy(tracking = it.tracking.copy(enabled = enabled)) }
+            if (enabled) refreshFollowedLocation()
+        }
+    }
+
+    /** A fix that moved reaches the widgets, the label and the alarms as any other edit would. */
+    private suspend fun onFollowedLocationMoved(settings: PrayerSettings) {
+        PrayerWidgetProvider.refresh(getApplication(), settings)
+        if (settings.hasActiveSurface) {
+            val outcome = withContext(Dispatchers.IO) {
+                SurfaceRefresh.run(getApplication(), force = true)
+            }
+            container.alarmScheduler.schedule(outcome.next)
+        }
+    }
+
+    /** Re-reads the fix now, whatever the usual interval would say. */
+    fun refreshFollowedLocation() {
+        viewModelScope.launch {
+            if (!locationProvider.hasPermission()) {
+                message(R.string.location_permission_needed)
+                return@launch
+            }
+            _state.update { it.copy(busy = true) }
+            val changed = withContext(Dispatchers.IO) {
+                container.locationTracker.refresh(force = true)
+            }
+            _state.update { it.copy(busy = false) }
+            val settings = container.settingsRepository.current()
+            when {
+                // The times have moved with the fix, so every surface is showing stale ones.
+                changed -> onFollowedLocationMoved(settings)
+                settings.tracking.location == null -> message(R.string.location_gps_failed)
+            }
+        }
+    }
 
     /**
      * Saves the coordinates straight away and asks the geocoder for the place name afterwards: the
@@ -416,6 +478,8 @@ class MainViewModel(
                 settings.copy(
                     locations = settings.locations + location,
                     activeLocationId = location.id,
+                    // Saving a place of one's own is a choice to use that place, not the phone's.
+                    tracking = settings.tracking.copy(enabled = false),
                 )
             }
             nameLocations(listOf(location))

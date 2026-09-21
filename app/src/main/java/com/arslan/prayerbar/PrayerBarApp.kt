@@ -7,6 +7,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.arslan.prayerbar.carrier.CarrierApplier
 import com.arslan.prayerbar.data.SettingsRepository
+import com.arslan.prayerbar.location.LocationTracker
 import com.arslan.prayerbar.prayer.NextPrayerResolver
 import com.arslan.prayerbar.prayer.PrayerTimesCalculator
 import com.arslan.prayerbar.schedule.PrayerAlarmScheduler
@@ -31,6 +32,7 @@ class AppContainer(private val context: Context) {
         StatusBarApplier(context, settingsRepository, resolver)
     }
     val alarmScheduler: PrayerAlarmScheduler by lazy { PrayerAlarmScheduler(context) }
+    val locationTracker: LocationTracker by lazy { LocationTracker(context, settingsRepository) }
 
     private val scope = CoroutineScope(SupervisorJob())
 

@@ -35,12 +35,16 @@ import com.arslan.prayerbar.R
 import com.arslan.prayerbar.location.CoordinateLabel
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.ui.components.SectionCard
+import com.arslan.prayerbar.ui.components.SwitchRow
+import android.text.format.DateUtils
 
 @Composable
 fun LocationScreen(
     settings: PrayerSettings,
     busy: Boolean,
     onUseGps: (String) -> Unit,
+    onFollowLocation: (Boolean) -> Unit,
+    onRefreshFollowed: () -> Unit,
     onAddManual: (String, Double, Double) -> Unit,
     onSelect: (String) -> Unit,
     onDelete: (String) -> Unit,
@@ -57,6 +61,41 @@ fun LocationScreen(
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        item {
+            SectionCard(title = stringResource(R.string.location_follow_section)) {
+                SwitchRow(
+                    title = stringResource(R.string.location_follow_title),
+                    supporting = stringResource(R.string.location_follow_supporting),
+                    checked = settings.tracking.enabled,
+                    onCheckedChange = onFollowLocation,
+                )
+                if (settings.tracking.enabled) {
+                    val followed = settings.tracking.location
+                    Text(
+                        text = followed?.label ?: stringResource(R.string.location_follow_waiting),
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        FilledTonalButton(onClick = onRefreshFollowed, enabled = !busy) {
+                            Icon(Icons.Rounded.MyLocation, contentDescription = null)
+                            Text(
+                                text = stringResource(R.string.location_follow_refresh),
+                                modifier = Modifier.padding(start = 8.dp),
+                            )
+                        }
+                        Text(
+                            text = lastReadLabel(settings.tracking.checkedAtMillis),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        }
         item {
             SectionCard(title = stringResource(R.string.location_title)) {
                 OutlinedTextField(
@@ -117,7 +156,7 @@ fun LocationScreen(
             }
         }
         item {
-            SectionCard(title = stringResource(R.string.location_title)) {
+            SectionCard(title = stringResource(R.string.location_saved_section)) {
                 if (settings.locations.isEmpty()) {
                     Text(
                         text = stringResource(R.string.location_empty),
@@ -132,7 +171,10 @@ fun LocationScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         RadioButton(
-                            selected = location.id == settings.activeLocation?.id,
+                            // While the phone is being followed nothing saved is in use, so no
+                            // radio is filled in — picking one here is what switches following off.
+                            selected = !settings.tracking.enabled &&
+                                location.id == settings.activeLocation?.id,
                             onClick = { onSelect(location.id) },
                         )
                         Text(
@@ -166,3 +208,19 @@ fun LocationScreen(
         }
     }
 }
+
+/** "5 minutes ago", or a plain note while the fix has never been read. */
+@Composable
+private fun lastReadLabel(checkedAtMillis: Long): String =
+    if (checkedAtMillis <= 0L) {
+        stringResource(R.string.location_follow_never)
+    } else {
+        stringResource(
+            R.string.location_follow_updated,
+            DateUtils.getRelativeTimeSpanString(
+                checkedAtMillis,
+                System.currentTimeMillis(),
+                DateUtils.MINUTE_IN_MILLIS,
+            ).toString(),
+        )
+    }

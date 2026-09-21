@@ -17,6 +17,25 @@ data class SavedLocation(
     val city: String? = null,
 )
 
+/**
+ * The live fix the app follows when the user would rather not pick a city: the coordinates are
+ * re-read in the background and the times move with them. Kept apart from [PrayerSettings.locations]
+ * so switching back to a saved place leaves the saved list exactly as it was.
+ */
+@Serializable
+data class LocationTracking(
+    val enabled: Boolean = false,
+    /** The last fix that was far enough from the previous one to be worth storing. */
+    val location: SavedLocation? = null,
+    /** When the fix was last asked for — a failed ask counts, so a dead GPS is not re-polled. */
+    val checkedAtMillis: Long = 0L,
+) {
+    companion object {
+        /** Stable id, so the tracked place can stand beside the saved ones without colliding. */
+        const val LOCATION_ID = "current-location"
+    }
+}
+
 @Serializable
 data class Adjustments(
     val fajr: Int = 0,
@@ -109,6 +128,7 @@ data class PrayerSettings(
     val midnightMethod: MidnightMethod = MidnightMethod.SunsetToFajr,
     val locations: List<SavedLocation> = emptyList(),
     val activeLocationId: String? = null,
+    val tracking: LocationTracking = LocationTracking(),
     val template: String = defaultTemplate(),
     val trackedPrayers: Set<PrayerName> = OBLIGATORY_PRAYERS,
     val targetSubIds: List<Int> = emptyList(),
@@ -128,8 +148,15 @@ data class PrayerSettings(
     fun withWidget(appWidgetId: Int, transform: (WidgetSettings) -> WidgetSettings): PrayerSettings =
         copy(widgets = widgets + (appWidgetId to transform(widget(appWidgetId))))
 
+    /**
+     * While the app is following the phone, the live fix wins over everything saved — that is the
+     * whole point of following it. Until the first fix lands the saved choice still stands, so the
+     * times never blank out while the radio is warming up.
+     */
     val activeLocation: SavedLocation?
-        get() = locations.firstOrNull { it.id == activeLocationId } ?: locations.firstOrNull()
+        get() = tracking.location?.takeIf { tracking.enabled }
+            ?: locations.firstOrNull { it.id == activeLocationId }
+            ?: locations.firstOrNull()
 
     val isConfigured: Boolean get() = activeLocation != null
 

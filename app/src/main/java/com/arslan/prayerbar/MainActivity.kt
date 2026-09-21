@@ -46,7 +46,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -152,10 +154,28 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
         if (!state.shizuku.notificationsAllowed) requestNotificationPermission()
     }
 
+    // What to do once the permission dialog closes depends on which button opened it: a one-off
+    // saved place, or switching on following.
+    var afterLocationPermission by remember { mutableStateOf<(() -> Unit)?>(null) }
     val locationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
     ) { granted ->
-        if (granted.values.any { it }) viewModel.useCurrentLocation("")
+        val action = afterLocationPermission
+        afterLocationPermission = null
+        if (granted.values.any { it }) action?.invoke() else viewModel.locationPermissionDenied()
+    }
+    val withLocationPermission: (() -> Unit) -> Unit = { action ->
+        if (viewModel.hasLocationPermission()) {
+            action()
+        } else {
+            afterLocationPermission = action
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                ),
+            )
+        }
     }
 
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
@@ -231,14 +251,7 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
                     onRequestPhonePermission = {
                         phonePermissionLauncher.launch(Manifest.permission.READ_PHONE_STATE)
                     },
-                    onRequestLocationPermission = {
-                        locationPermissionLauncher.launch(
-                            arrayOf(
-                                Manifest.permission.ACCESS_COARSE_LOCATION,
-                                Manifest.permission.ACCESS_FINE_LOCATION,
-                            ),
-                        )
-                    },
+                    withLocationPermission = withLocationPermission,
                 )
             }
         }
@@ -253,7 +266,7 @@ private fun PrayerBarNavHost(
     activity: ComponentActivity,
     requestNotificationPermission: () -> Unit,
     onRequestPhonePermission: () -> Unit,
-    onRequestLocationPermission: () -> Unit,
+    withLocationPermission: (() -> Unit) -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -286,8 +299,14 @@ private fun PrayerBarNavHost(
                 settings = state.settings,
                 busy = state.busy,
                 onUseGps = { label ->
-                    onRequestLocationPermission()
-                    viewModel.useCurrentLocation(label)
+                    withLocationPermission { viewModel.useCurrentLocation(label) }
+                },
+                onFollowLocation = { enabled ->
+                    if (enabled) withLocationPermission { viewModel.setFollowLocation(true) }
+                    else viewModel.setFollowLocation(false)
+                },
+                onRefreshFollowed = {
+                    withLocationPermission(viewModel::refreshFollowedLocation)
                 },
                 onAddManual = viewModel::addLocation,
                 onSelect = viewModel::selectLocation,

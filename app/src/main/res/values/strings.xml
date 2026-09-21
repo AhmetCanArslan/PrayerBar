@@ -186,6 +186,14 @@
     <string name="status_colorized_hint">Paints the whole notification in the prayer colour instead of tinting only the icon. Only an ongoing notification is allowed this.</string>
     <string name="status_timeline">The day\'s times</string>
     <string name="status_timeline_hint">Listed when the notification is pulled open, the next one in bold. The shade draws six lines, so a longer list drops the times already called.</string>
+    <string name="location_follow_title">Follow my location</string>
+    <string name="location_follow_supporting">Prayer times move with the phone: the fix is re-read in the background and the times follow wherever you are.</string>
+    <string name="location_follow_section">Current location</string>
+    <string name="location_follow_waiting">Waiting for the first fix…</string>
+    <string name="location_follow_refresh">Update now</string>
+    <string name="location_follow_updated">Updated %1$s</string>
+    <string name="location_follow_never">Not read yet</string>
+    <string name="location_saved_section">Saved locations</string>
     <string name="location_label_hint">Leave it empty to name the place after the town it falls in.</string>
     <string name="nav_status_bar">Status bar</string>
     <string name="settings_status_bar_hint">The label as status bar icons</string>
