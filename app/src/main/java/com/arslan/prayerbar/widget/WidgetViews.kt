@@ -49,8 +49,7 @@ object WidgetViews {
         val palette = WidgetPalette.of(context, widget)
         val views = RemoteViews(context.packageName, spec.shape.layoutRes)
 
-        views.setInt(R.id.widget_background, "setColorFilter", palette.surface)
-        views.setInt(R.id.widget_background, "setImageAlpha", widget.backgroundAlpha * 255 / 100)
+        applyBackground(views, palette.surface, widget.backgroundAlpha * 255 / 100)
 
         views.setImageViewResource(R.id.widget_icon, content.iconRes)
         views.setInt(R.id.widget_icon, "setColorFilter", content.accent)
@@ -71,8 +70,24 @@ object WidgetViews {
 
         applyProgress(views, content)
         applyList(context, views, spec, widget.showIcon, palette, content)
-        views.setOnClickPendingIntent(R.id.widget_root, openApp(context))
+        views.setOnClickPendingIntent(android.R.id.background, openApp(context))
         return views
+    }
+
+    /**
+     * The launcher animates the view with the system background id when the app opens from the
+     * widget and closes back into it; without a drawable there it paints the app's window colour
+     * behind the widget instead. So from API 31 the surface is the root's own tinted background.
+     */
+    private fun applyBackground(views: RemoteViews, surface: Int, alpha: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val tint = ColorStateList.valueOf((surface and 0x00FFFFFF) or (alpha shl 24))
+            views.setColorStateList(android.R.id.background, "setBackgroundTintList", tint)
+            views.setViewVisibility(R.id.widget_background, View.GONE)
+        } else {
+            views.setInt(R.id.widget_background, "setColorFilter", surface)
+            views.setInt(R.id.widget_background, "setImageAlpha", alpha)
+        }
     }
 
     private fun applyEmphasis(

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Below API 31 the root cannot be tinted from RemoteViews, so the ImageView paints instead. -->
+    <drawable name="widget_root_background">@android:color/transparent</drawable>
+</resources>
