@@ -6,6 +6,7 @@
 package com.arslan.prayerbar.ui.settings
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -125,100 +129,133 @@ fun WidgetEditor(
     modifier: Modifier = Modifier,
     header: (@Composable () -> Unit)? = null,
 ) {
-    LazyColumn(
-        modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
+    // The list recomposes on its own terms: the preview above ticks every second, the switches
+    // below only change when a setting does.
+    val stableWidget = remember(widget) { widget }
+    val currentLabelOf by rememberUpdatedState(labelOf)
+    val currentOnEdit by rememberUpdatedState(onEdit)
+    val currentOnTogglePrayer by rememberUpdatedState(onTogglePrayer)
+    val label = remember { { prayer: PrayerName -> currentLabelOf(prayer) } }
+    val edit = remember {
+        { transform: (WidgetSettings) -> WidgetSettings -> currentOnEdit(transform) }
+    }
+    val togglePrayer = remember { { prayer: PrayerName -> currentOnTogglePrayer(prayer) } }
+
+    Column(modifier = modifier.fillMaxWidth()) {
+        // Pinned above the list, so a switch far down the screen still shows what it changes.
+        Box(modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp)) {
+            WidgetPreview(widget = widget, content = preview)
+        }
+        WidgetSettingsList(
+            widget = stableWidget,
+            labelOf = label,
+            onEdit = edit,
+            onTogglePrayer = togglePrayer,
+            header = header,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+/**
+ * A plain scrolling column rather than a lazy one: there are only a handful of cards, and composing
+ * a card full of switches as it scrolls into view is what made this screen stutter.
+ */
+@Composable
+private fun WidgetSettingsList(
+    widget: WidgetSettings,
+    labelOf: (PrayerName) -> String,
+    onEdit: ((WidgetSettings) -> WidgetSettings) -> Unit,
+    onTogglePrayer: (PrayerName) -> Unit,
+    header: (@Composable () -> Unit)?,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        if (header != null) item { header() }
-        item {
-            SectionCard(
-                title = stringResource(R.string.widget_title),
-                supporting = stringResource(R.string.widget_size_hint),
-            ) {
-                WidgetPreview(widget = widget, content = preview)
-            }
-        }
-        item {
-            SectionCard(
-                title = stringResource(R.string.widget_content),
-                supporting = stringResource(R.string.widget_content_hint),
-            ) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PRAYERS_IN_ORDER.forEach { prayer ->
-                        FilterChip(
-                            selected = prayer in widget.visiblePrayers,
-                            onClick = { onTogglePrayer(prayer) },
-                            label = { Text(labelOf(prayer)) },
-                        )
-                    }
+        header?.invoke()
+        SectionCard(
+            title = stringResource(R.string.widget_title),
+            supporting = stringResource(R.string.widget_size_hint),
+        ) {}
+        SectionCard(
+            title = stringResource(R.string.widget_content),
+            supporting = stringResource(R.string.widget_content_hint),
+        ) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                PRAYERS_IN_ORDER.forEach { prayer ->
+                    FilterChip(
+                        selected = prayer in widget.visiblePrayers,
+                        onClick = { onTogglePrayer(prayer) },
+                        label = { Text(labelOf(prayer)) },
+                    )
                 }
             }
         }
-        item {
-            SectionCard(title = stringResource(R.string.widget_appearance)) {
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_countdown),
-                    supporting = stringResource(R.string.widget_show_countdown_hint),
-                    checked = widget.showCountdown,
-                    onCheckedChange = { on -> onEdit { it.copy(showCountdown = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_seconds),
-                    supporting = stringResource(R.string.widget_show_seconds_hint),
-                    checked = widget.showSeconds,
-                    onCheckedChange = { on -> onEdit { it.copy(showSeconds = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_progress),
-                    supporting = stringResource(R.string.widget_show_progress_hint),
-                    checked = widget.showProgress,
-                    onCheckedChange = { on -> onEdit { it.copy(showProgress = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_icon),
-                    checked = widget.showIcon,
-                    onCheckedChange = { on -> onEdit { it.copy(showIcon = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_use_prayer_color),
-                    supporting = stringResource(R.string.widget_use_prayer_color_hint),
-                    checked = widget.usePrayerColor,
-                    onCheckedChange = { on -> onEdit { it.copy(usePrayerColor = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_hijri),
-                    checked = widget.showHijri,
-                    onCheckedChange = { on -> onEdit { it.copy(showHijri = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.widget_show_location),
-                    checked = widget.showLocation,
-                    onCheckedChange = { on -> onEdit { it.copy(showLocation = on) } },
-                )
-            }
+        SectionCard(title = stringResource(R.string.widget_appearance)) {
+            SwitchRow(
+                title = stringResource(R.string.widget_show_countdown),
+                supporting = stringResource(R.string.widget_show_countdown_hint),
+                checked = widget.showCountdown,
+                onCheckedChange = { on -> onEdit { it.copy(showCountdown = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_show_seconds),
+                supporting = stringResource(R.string.widget_show_seconds_hint),
+                checked = widget.showSeconds,
+                onCheckedChange = { on -> onEdit { it.copy(showSeconds = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_show_progress),
+                supporting = stringResource(R.string.widget_show_progress_hint),
+                checked = widget.showProgress,
+                onCheckedChange = { on -> onEdit { it.copy(showProgress = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_show_icon),
+                checked = widget.showIcon,
+                onCheckedChange = { on -> onEdit { it.copy(showIcon = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_use_prayer_color),
+                supporting = stringResource(R.string.widget_use_prayer_color_hint),
+                checked = widget.usePrayerColor,
+                onCheckedChange = { on -> onEdit { it.copy(usePrayerColor = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_show_hijri),
+                checked = widget.showHijri,
+                onCheckedChange = { on -> onEdit { it.copy(showHijri = on) } },
+            )
+            SwitchRow(
+                title = stringResource(R.string.widget_show_location),
+                checked = widget.showLocation,
+                onCheckedChange = { on -> onEdit { it.copy(showLocation = on) } },
+            )
         }
-        item {
-            SectionCard(
-                title = stringResource(R.string.widget_background),
-                supporting = stringResource(R.string.widget_background_hint),
-            ) {
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    WidgetSettings.ALPHA_CHOICES.forEach { alpha ->
-                        FilterChip(
-                            selected = widget.backgroundAlpha == alpha,
-                            onClick = { onEdit { it.copy(backgroundAlpha = alpha) } },
-                            label = { Text(stringResource(R.string.widget_alpha, alpha)) },
-                        )
-                    }
+        SectionCard(
+            title = stringResource(R.string.widget_background),
+            supporting = stringResource(R.string.widget_background_hint),
+        ) {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                WidgetSettings.ALPHA_CHOICES.forEach { alpha ->
+                    FilterChip(
+                        selected = widget.backgroundAlpha == alpha,
+                        onClick = { onEdit { it.copy(backgroundAlpha = alpha) } },
+                        label = { Text(stringResource(R.string.widget_alpha, alpha)) },
+                    )
                 }
-                SwitchRow(
-                    title = stringResource(R.string.widget_follow_system),
-                    supporting = stringResource(R.string.widget_follow_system_hint),
-                    checked = widget.followSystemTheme,
-                    onCheckedChange = { on -> onEdit { it.copy(followSystemTheme = on) } },
-                )
             }
+            SwitchRow(
+                title = stringResource(R.string.widget_follow_system),
+                supporting = stringResource(R.string.widget_follow_system_hint),
+                checked = widget.followSystemTheme,
+                onCheckedChange = { on -> onEdit { it.copy(followSystemTheme = on) } },
+            )
         }
     }
 }
