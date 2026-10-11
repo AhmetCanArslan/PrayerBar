@@ -151,17 +151,22 @@ class PrayerWidgetProvider : AppWidgetProvider() {
                 )
             }
 
+            val hasMeta = widget.showHijri || widget.showLocation
+            val resolve = { size: SizeF ->
+                WidgetSizing.resolve(size.width.toInt(), size.height.toInt(), hasMeta)
+            }
+
             val options = runCatching { manager.getAppWidgetOptions(appWidgetId) }.getOrNull()
             val sizes = declaredSizes(options)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && sizes.size > 1) {
                 return RemoteViews(
                     sizes.take(MAX_MAPPED_SIZES).associateWith { size ->
-                        render(WidgetSizing.resolve(size.width.toInt(), size.height.toInt()))
+                        render(resolve(size))
                     },
                 )
             }
             val single = sizes.firstOrNull() ?: fallbackSize(options)
-            return render(WidgetSizing.resolve(single.width.toInt(), single.height.toInt()))
+            return render(resolve(single))
         }
 
         private fun declaredSizes(options: Bundle?): List<SizeF> {

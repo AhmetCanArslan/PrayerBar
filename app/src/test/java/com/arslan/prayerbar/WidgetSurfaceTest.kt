@@ -76,7 +76,8 @@ class WidgetSurfaceTest {
         assertEquals(WidgetShape.Small, WidgetSizing.resolve(150, 70).shape)
         assertEquals(WidgetShape.Wide, WidgetSizing.resolve(320, 70).shape)
         assertEquals(WidgetShape.Column, WidgetSizing.resolve(70, 150).shape)
-        assertEquals(WidgetShape.Medium, WidgetSizing.resolve(150, 200).shape)
+        assertEquals(WidgetShape.Compact, WidgetSizing.resolve(150, 140).shape)
+        assertEquals(WidgetShape.Medium, WidgetSizing.resolve(150, 240).shape)
         assertEquals(WidgetShape.Large, WidgetSizing.resolve(320, 200).shape)
     }
 

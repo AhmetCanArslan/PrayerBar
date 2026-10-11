@@ -11,6 +11,7 @@ enum class WidgetShape(
     Small(R.layout.widget_small, R.layout.widget_item_row),
     Wide(R.layout.widget_wide, R.layout.widget_item_column),
     Column(R.layout.widget_column, R.layout.widget_item_compact),
+    Compact(R.layout.widget_compact, R.layout.widget_item_row),
     Medium(R.layout.widget_medium, R.layout.widget_item_row),
     Large(R.layout.widget_large, R.layout.widget_item_row),
 }
@@ -35,8 +36,13 @@ object WidgetSizing {
     private const val WIDE_CHROME_DP = 64
     private const val COLUMN_CHROME_DP = 78
     private const val COLUMN_MIN_HEIGHT_DP = 96
+    private const val COMPACT_CHROME_DP = 56
+    private const val COMPACT_META_DP = 14
+    private const val COMPACT_LIST_ROW_DP = 20
+    private const val MEDIUM_MIN_ROWS = 5
 
-    fun resolve(widthDp: Int, heightDp: Int): WidgetLayoutSpec {
+    /** [hasMeta] is whether a location or date line will be drawn, which costs the list a row. */
+    fun resolve(widthDp: Int, heightDp: Int, hasMeta: Boolean = true): WidgetLayoutSpec {
         val short = heightDp < SHORT_DP
         val narrow = widthDp < NARROW_DP
         return when {
@@ -47,6 +53,15 @@ object WidgetSizing {
             )
             short && widthDp < STRIP_DP -> WidgetLayoutSpec(WidgetShape.Small, 0)
             short -> WidgetLayoutSpec(WidgetShape.Wide, columns(widthDp, heightDp))
+            // A square too short for the big countdown and a full list gives the room to the list.
+            widthDp < SPLIT_DP && rows(heightDp - MEDIUM_CHROME_DP) < MEDIUM_MIN_ROWS ->
+                WidgetLayoutSpec(
+                    WidgetShape.Compact,
+                    rows(
+                        heightDp - COMPACT_CHROME_DP - if (hasMeta) COMPACT_META_DP else 0,
+                        COMPACT_LIST_ROW_DP,
+                    ),
+                )
             widthDp < SPLIT_DP -> WidgetLayoutSpec(
                 WidgetShape.Medium,
                 rows(heightDp - MEDIUM_CHROME_DP),
