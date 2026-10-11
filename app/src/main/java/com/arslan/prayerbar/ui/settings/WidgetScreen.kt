@@ -263,7 +263,7 @@ private fun WidgetPreview(widget: WidgetSettings, content: WidgetContent) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (widget.showCountdown) {
+                if (content.showTime) {
                     Text(
                         text = content.time,
                         style = MaterialTheme.typography.bodyMedium,

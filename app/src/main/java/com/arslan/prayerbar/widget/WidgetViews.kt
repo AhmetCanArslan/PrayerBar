@@ -62,7 +62,7 @@ object WidgetViews {
 
         views.setTextViewText(R.id.widget_time, content.time)
         views.setTextColor(R.id.widget_time, palette.onSurface)
-        views.setViewVisibility(R.id.widget_time, visibility(widget.showCountdown))
+        views.setViewVisibility(R.id.widget_time, visibility(content.showTime))
 
         views.setTextViewText(R.id.widget_meta, content.meta)
         views.setTextColor(R.id.widget_meta, palette.onSurfaceVariant)

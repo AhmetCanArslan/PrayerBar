@@ -34,6 +34,8 @@ data class WidgetContent(
     val emphasis: String,
     val remainingMillis: Long,
     val time: String,
+    /** False once the list already spells out the next time, so it is not drawn twice. */
+    val showTime: Boolean,
     val meta: String,
     val progress: Int,
     val showProgress: Boolean,
@@ -62,6 +64,7 @@ object WidgetRenderer {
                 emphasis = "—",
                 remainingMillis = 0L,
                 time = "",
+                showTime = false,
                 meta = context.getString(R.string.tile_no_location),
                 progress = 0,
                 showProgress = false,
@@ -81,18 +84,21 @@ object WidgetRenderer {
             CountdownFormat.remainingShort(remaining, locale)
         }
 
+        val rows = rows(context, settings, widget, next, today, capacity, now, fallbackAccent)
+
         return WidgetContent(
             configured = true,
             headline = context.getString(next.name.labelRes),
             emphasis = if (widget.showCountdown) countdown else clock,
             remainingMillis = remaining.toMillis().coerceAtLeast(0L),
             time = clock,
+            showTime = widget.showCountdown && rows.none { it.isNext && !it.elapsed },
             meta = meta(context, settings, widget, now, zone),
             progress = (next.progress(now) * 1000f).toInt().coerceIn(0, 1000),
             showProgress = widget.showProgress,
             iconRes = visual.iconRes,
             accent = accent,
-            rows = rows(context, settings, widget, next, today, capacity, now, fallbackAccent),
+            rows = rows,
         )
     }
 

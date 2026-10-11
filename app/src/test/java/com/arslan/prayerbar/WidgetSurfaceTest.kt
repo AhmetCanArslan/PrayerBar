@@ -215,6 +215,26 @@ class WidgetSurfaceTest {
     }
 
     @Test
+    fun `a square too short for the big countdown still lists the times`() {
+        assertTrue(WidgetSizing.resolve(190, 138, hasMeta = false).listCapacity >= 4)
+        assertTrue(WidgetSizing.resolve(190, 138, hasMeta = true).listCapacity >= 3)
+    }
+
+    @Test
+    fun `the next time is not drawn twice once the list carries it`() {
+        val widget = WidgetSettings()
+        val listed = content(widget, 6)
+        assertEquals(listed.rows.none { it.isNext && !it.elapsed }, listed.showTime)
+        assertTrue(content(widget, 0).showTime)
+
+        val root = inflate(WidgetLayoutSpec(WidgetShape.Large, 6), widget, listed)
+        assertEquals(
+            if (listed.showTime) View.VISIBLE else View.GONE,
+            root.findViewById<View>(R.id.widget_time).visibility,
+        )
+    }
+
+    @Test
     fun `switching seconds on hands the countdown to the chronometer`() {
         val widget = WidgetSettings(showSeconds = true)
         val spec = WidgetLayoutSpec(WidgetShape.Large, 5)
