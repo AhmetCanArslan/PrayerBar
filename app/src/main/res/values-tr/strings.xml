@@ -217,4 +217,23 @@
         <item>Zilkade</item>
         <item>Zilhicce</item>
     </string-array>
+
+    <string name="kerahat_label">Kerahat</string>
+    <string name="kerahat_sunrise">Güneş doğuşu</string>
+    <string name="kerahat_zenith">İstiva</string>
+    <string name="kerahat_sunset">Gün batımı</string>
+    <string name="kerahat_range">%1$s – %2$s</string>
+    <string name="home_kerahat_active">Kerahat vakti</string>
+    <string name="home_kerahat_next">Sonraki kerahat vakti</string>
+    <string name="home_kerahat_ends_in">%1$s kaldı</string>
+    <string name="home_kerahat_starts_in">%1$s sonra</string>
+    <string name="home_kerahat_legend">Kerahat vakitleri</string>
+    <string name="calc_kerahat">Kerahat vakitleri</string>
+    <string name="calc_kerahat_hint">Namaz kılmanın mekruh olduğu üç vakit: güneş doğduktan sonra, öğleden önce güneş tepedeyken (istiva) ve güneş batmadan önce. Takvimler bunları sabit bir dakika olarak verir; yaygın değer 45 dakikadır ve her biri buradan değiştirilebilir.</string>
+    <string name="calc_kerahat_show">Kerahat vakitlerini göster</string>
+    <string name="calc_kerahat_minutes">%1$s (dk)</string>
+    <string name="widget_kerahat_active">Kerahat bitişi %1$s</string>
+    <string name="widget_kerahat_upcoming">Kerahat %1$s–%2$s</string>
+    <string name="widget_show_kerahat">Kerahat vakitleri</string>
+    <string name="widget_show_kerahat_hint">Sıradaki kerahat vaktini gösteren bir satır; vakit sürerken renklenir. Satıra yer olmayan boyutlarda süren kerahat vakti, vakit adının yanında belirtilir.</string>
 </resources>

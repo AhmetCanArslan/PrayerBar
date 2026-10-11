@@ -219,4 +219,23 @@
         <item>Dhu al-Qadah</item>
         <item>Dhu al-Hijjah</item>
     </string-array>
+
+    <string name="kerahat_label">Makruh</string>
+    <string name="kerahat_sunrise">After sunrise</string>
+    <string name="kerahat_zenith">Zenith</string>
+    <string name="kerahat_sunset">Before sunset</string>
+    <string name="kerahat_range">%1$s – %2$s</string>
+    <string name="home_kerahat_active">Makruh time now</string>
+    <string name="home_kerahat_next">Next makruh time</string>
+    <string name="home_kerahat_ends_in">%1$s left</string>
+    <string name="home_kerahat_starts_in">in %1$s</string>
+    <string name="home_kerahat_legend">Makruh times</string>
+    <string name="calc_kerahat">Makruh times</string>
+    <string name="calc_kerahat_hint">The three stretches in which prayer is disliked: after sunrise, at the zenith before Dhuhr, and before sunset. Calendars print them as a fixed number of minutes; 45 is the common figure, and each can be changed here.</string>
+    <string name="calc_kerahat_show">Show makruh times</string>
+    <string name="calc_kerahat_minutes">%1$s (min)</string>
+    <string name="widget_kerahat_active">Makruh until %1$s</string>
+    <string name="widget_kerahat_upcoming">Makruh %1$s–%2$s</string>
+    <string name="widget_show_kerahat">Makruh times</string>
+    <string name="widget_show_kerahat_hint">A line with the next makruh window, coloured while it runs. Sizes with no room for the line flag a running window beside the prayer name.</string>
 </resources>

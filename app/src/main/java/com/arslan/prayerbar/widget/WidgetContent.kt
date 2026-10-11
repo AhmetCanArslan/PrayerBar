@@ -28,6 +28,14 @@ data class WidgetRow(
     @param:ColorInt val color: Int,
 )
 
+data class WidgetKerahat(
+    val active: Boolean,
+    /** The full line, for the shapes that can spare one. */
+    val line: String,
+    /** The bare word, for the shapes that can only flag a window that is running. */
+    val badge: String,
+)
+
 data class WidgetContent(
     val configured: Boolean,
     val headline: String,
@@ -37,6 +45,8 @@ data class WidgetContent(
     /** False once the list already spells out the next time, so it is not drawn twice. */
     val showTime: Boolean,
     val meta: String,
+    /** Null when the widget does not show kerahat or the windows are switched off. */
+    val kerahat: WidgetKerahat? = null,
     val progress: Int,
     val showProgress: Boolean,
     @param:DrawableRes val iconRes: Int,
@@ -94,6 +104,7 @@ object WidgetRenderer {
             time = clock,
             showTime = widget.showCountdown && rows.none { it.isNext && !it.elapsed },
             meta = meta(context, settings, widget, now, zone),
+            kerahat = kerahat(context, settings, widget, next, now, zone, locale),
             progress = (next.progress(now) * 1000f).toInt().coerceIn(0, 1000),
             showProgress = widget.showProgress,
             iconRes = visual.iconRes,
@@ -116,6 +127,28 @@ object WidgetRenderer {
             }
         }
         return parts.joinToString(" · ")
+    }
+
+    private fun kerahat(
+        context: Context,
+        settings: PrayerSettings,
+        widget: WidgetSettings,
+        next: NextPrayer,
+        now: Instant,
+        zone: ZoneId,
+        locale: Locale,
+    ): WidgetKerahat? {
+        if (!widget.showKerahat) return null
+        val window = next.kerahat ?: return null
+        val active = window.contains(now)
+        val end = CountdownFormat.clock(window.end, zone, settings.use24Hour, locale)
+        val line = if (active) {
+            context.getString(R.string.widget_kerahat_active, end)
+        } else {
+            val start = CountdownFormat.clock(window.start, zone, settings.use24Hour, locale)
+            context.getString(R.string.widget_kerahat_upcoming, start, end)
+        }
+        return WidgetKerahat(active, line, context.getString(R.string.kerahat_label))
     }
 
     private fun rows(

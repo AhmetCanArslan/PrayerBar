@@ -152,8 +152,9 @@ class PrayerWidgetProvider : AppWidgetProvider() {
             }
 
             val hasMeta = widget.showHijri || widget.showLocation
+            val hasKerahat = widget.showKerahat && next?.kerahat != null
             val resolve = { size: SizeF ->
-                WidgetSizing.resolve(size.width.toInt(), size.height.toInt(), hasMeta)
+                WidgetSizing.resolve(size.width.toInt(), size.height.toInt(), hasMeta, hasKerahat)
             }
 
             val options = runCatching { manager.getAppWidgetOptions(appWidgetId) }.getOrNull()

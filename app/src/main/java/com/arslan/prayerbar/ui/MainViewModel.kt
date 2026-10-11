@@ -32,6 +32,7 @@ import com.arslan.prayerbar.tile.TileContent
 import com.arslan.prayerbar.tile.TileRenderer
 import com.arslan.prayerbar.prayer.Adjustments
 import com.arslan.prayerbar.prayer.DayTimes
+import com.arslan.prayerbar.prayer.KerahatSettings
 import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.NotificationSettings
 import com.arslan.prayerbar.prayer.PrayerName
@@ -320,6 +321,9 @@ class MainViewModel(
     }
 
     fun resetAdjustments() = edit { it.copy(adjustments = Adjustments()) }
+
+    fun editKerahat(transform: (KerahatSettings) -> KerahatSettings) =
+        edit { it.copy(kerahat = transform(it.kerahat)) }
 
     fun toggleTracked(prayer: PrayerName) = edit { settings ->
         val tracked = settings.trackedPrayers.toMutableSet()

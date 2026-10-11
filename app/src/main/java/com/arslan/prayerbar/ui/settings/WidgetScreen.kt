@@ -227,6 +227,12 @@ private fun WidgetSettingsList(
                 onCheckedChange = { on -> onEdit { it.copy(usePrayerColor = on) } },
             )
             SwitchRow(
+                title = stringResource(R.string.widget_show_kerahat),
+                supporting = stringResource(R.string.widget_show_kerahat_hint),
+                checked = widget.showKerahat,
+                onCheckedChange = { on -> onEdit { it.copy(showKerahat = on) } },
+            )
+            SwitchRow(
                 title = stringResource(R.string.widget_show_hijri),
                 checked = widget.showHijri,
                 onCheckedChange = { on -> onEdit { it.copy(showHijri = on) } },
@@ -312,6 +318,15 @@ private fun WidgetPreview(widget: WidgetSettings, content: WidgetContent) {
                         text = content.meta,
                         style = MaterialTheme.typography.bodySmall,
                         color = variant,
+                    )
+                }
+                content.kerahat?.let { kerahat ->
+                    Text(
+                        text = kerahat.line,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = if (kerahat.active) Color(palette.kerahat) else variant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
                 if (content.showProgress) {

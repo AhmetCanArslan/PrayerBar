@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.arslan.prayerbar.R
+import com.arslan.prayerbar.prayer.KerahatKind
+import com.arslan.prayerbar.prayer.KerahatSettings
 import com.arslan.prayerbar.prayer.PRAYERS_IN_ORDER
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
@@ -28,6 +30,7 @@ import com.arslan.prayerbar.prayer.isMethodModified
 import com.arslan.prayerbar.ui.components.DropdownField
 import com.arslan.prayerbar.ui.components.SectionCard
 import com.arslan.prayerbar.ui.components.Stepper
+import com.arslan.prayerbar.ui.components.SwitchRow
 import io.github.meypod.adhan_kotlin.CalculationMethod
 import io.github.meypod.adhan_kotlin.HighLatitudeRule
 import io.github.meypod.adhan_kotlin.Madhab
@@ -60,6 +63,7 @@ fun CalculationScreen(
     onRounding: (Rounding) -> Unit,
     onMidnight: (MidnightMethod) -> Unit,
     onToggleTracked: (PrayerName) -> Unit,
+    onKerahat: ((KerahatSettings) -> KerahatSettings) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val params = settings.parameters
@@ -177,6 +181,41 @@ fun CalculationScreen(
                             selected = prayer in settings.trackedPrayers,
                             onClick = { onToggleTracked(prayer) },
                             label = { Text(labelOf(prayer)) },
+                        )
+                    }
+                }
+            }
+        }
+        item {
+            SectionCard(
+                title = stringResource(R.string.calc_kerahat),
+                supporting = stringResource(R.string.calc_kerahat_hint),
+            ) {
+                val kerahat = settings.kerahat
+                SwitchRow(
+                    title = stringResource(R.string.calc_kerahat_show),
+                    checked = kerahat.enabled,
+                    onCheckedChange = { on -> onKerahat { it.copy(enabled = on) } },
+                )
+                if (kerahat.enabled) {
+                    KerahatKind.entries.forEach { kind ->
+                        val current = kerahat.minutes(kind)
+                        Stepper(
+                            title = stringResource(
+                                R.string.calc_kerahat_minutes,
+                                stringResource(kind.labelRes),
+                            ),
+                            value = "$current",
+                            onDecrease = {
+                                onKerahat {
+                                    it.withMinutes(kind, current - KerahatSettings.STEP_MINUTES)
+                                }
+                            },
+                            onIncrease = {
+                                onKerahat {
+                                    it.withMinutes(kind, current + KerahatSettings.STEP_MINUTES)
+                                }
+                            },
                         )
                     }
                 }

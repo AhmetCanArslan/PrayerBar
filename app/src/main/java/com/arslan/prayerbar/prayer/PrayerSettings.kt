@@ -139,6 +139,7 @@ data class PrayerSettings(
     val statusBar: StatusBarSettings = StatusBarSettings(),
     val notification: NotificationSettings = NotificationSettings(),
     val widgets: Map<Int, WidgetSettings> = emptyMap(),
+    val kerahat: KerahatSettings = KerahatSettings(),
 ) {
     val hasActiveSurface: Boolean
         get() = enabled || tile.enabled || notification.enabled || statusBar.enabled

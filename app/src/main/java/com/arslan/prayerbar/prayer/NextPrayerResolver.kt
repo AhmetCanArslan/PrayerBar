@@ -14,7 +14,19 @@ data class NextPrayer(
     val previousName: PrayerName?,
     val previousAt: Instant?,
     val today: DayTimes,
+    /** The kerahat window running now, or the next one to open. */
+    val kerahat: KerahatWindow? = null,
 ) {
+    /**
+     * When a surface that draws the kerahat state has to be redrawn: the prayer boundary, or the
+     * window opening or closing if that comes first.
+     */
+    fun wakeAt(now: Instant): Instant {
+        val window = kerahat ?: return at
+        val edge = if (window.contains(now)) window.end else window.start
+        return if (edge.isAfter(now) && edge.isBefore(at)) edge else at
+    }
+
     /** 0f right after the previous prayer, 1f at [at]. */
     fun progress(now: Instant): Float {
         val from = previousAt ?: return 0f
@@ -59,6 +71,7 @@ class NextPrayerResolver(private val calculator: PrayerTimesCalculator = PrayerT
             previousName = previous?.first,
             previousAt = previous?.second,
             today = todayTimes,
+            kerahat = days.flatMap { it.kerahatWindows(settings.kerahat) }.currentOrNext(now),
         )
     }
 

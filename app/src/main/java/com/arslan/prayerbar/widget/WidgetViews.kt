@@ -7,6 +7,9 @@ import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Build
 import android.os.SystemClock
+import android.text.SpannableStringBuilder
+import android.text.Spanned
+import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.RemoteViews
 import androidx.annotation.ColorInt
@@ -18,12 +21,15 @@ data class WidgetPalette(
     @param:ColorInt val surface: Int,
     @param:ColorInt val onSurface: Int,
     @param:ColorInt val onSurfaceVariant: Int,
+    /** What a running kerahat window is written in. */
+    @param:ColorInt val kerahat: Int,
 ) {
     companion object {
         private val DARK = WidgetPalette(
             surface = 0xFF1B1B1F.toInt(),
             onSurface = 0xFFE4E2E6.toInt(),
             onSurfaceVariant = 0xFFC5C6D0.toInt(),
+            kerahat = 0xFFFFB68A.toInt(),
         )
 
         fun of(context: Context, widget: WidgetSettings): WidgetPalette =
@@ -34,6 +40,7 @@ data class WidgetPalette(
                     surface = context.getColor(R.color.widget_surface),
                     onSurface = context.getColor(R.color.widget_on_surface),
                     onSurfaceVariant = context.getColor(R.color.widget_on_surface_variant),
+                    kerahat = context.getColor(R.color.widget_kerahat),
                 )
             }
     }
@@ -57,6 +64,7 @@ object WidgetViews {
 
         views.setTextViewText(R.id.widget_name, content.headline)
         views.setTextColor(R.id.widget_name, palette.onSurfaceVariant)
+        applyKerahat(views, spec, palette, content)
 
         applyEmphasis(views, widget, content, palette.onSurface)
 
@@ -111,6 +119,46 @@ object WidgetViews {
         } else {
             views.setTextViewText(R.id.widget_remaining, content.emphasis)
             views.setTextColor(R.id.widget_remaining, textColor)
+        }
+    }
+
+    private fun applyKerahat(
+        views: RemoteViews,
+        spec: WidgetLayoutSpec,
+        palette: WidgetPalette,
+        content: WidgetContent,
+    ) {
+        val kerahat = content.kerahat
+        val slot = spec.shape.kerahatSlot
+        views.setViewVisibility(
+            R.id.widget_kerahat,
+            visibility(kerahat != null && slot == KerahatSlot.Line),
+        )
+        if (kerahat == null) return
+        when (slot) {
+            KerahatSlot.Line -> {
+                views.setTextViewText(R.id.widget_kerahat, kerahat.line)
+                views.setTextColor(
+                    R.id.widget_kerahat,
+                    if (kerahat.active) palette.kerahat else palette.onSurfaceVariant,
+                )
+            }
+            KerahatSlot.Inline -> if (kerahat.active) {
+                val name = SpannableStringBuilder(content.headline).append(" · ")
+                val from = name.length
+                name.append(kerahat.badge)
+                name.setSpan(
+                    ForegroundColorSpan(palette.kerahat),
+                    from,
+                    name.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE,
+                )
+                views.setTextViewText(R.id.widget_name, name)
+            }
+            KerahatSlot.Replace -> if (kerahat.active) {
+                views.setTextViewText(R.id.widget_name, kerahat.badge)
+                views.setTextColor(R.id.widget_name, palette.kerahat)
+            }
         }
     }
 

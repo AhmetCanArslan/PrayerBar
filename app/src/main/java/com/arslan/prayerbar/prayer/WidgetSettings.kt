@@ -12,6 +12,7 @@ data class WidgetSettings(
     val usePrayerColor: Boolean = true,
     val showHijri: Boolean = false,
     val showLocation: Boolean = false,
+    val showKerahat: Boolean = true,
     val backgroundAlpha: Int = 100,
     val followSystemTheme: Boolean = true,
 ) {

@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.test.core.app.ApplicationProvider
+import com.arslan.prayerbar.prayer.CountdownFormat
+import com.arslan.prayerbar.prayer.KerahatSettings
 import com.arslan.prayerbar.prayer.NextPrayerResolver
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
@@ -26,6 +28,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -49,9 +52,11 @@ class WidgetSurfaceTest {
     private fun content(
         widget: WidgetSettings = WidgetSettings(),
         capacity: Int = 8,
+        now: Instant = afternoon,
+        settings: PrayerSettings = this.settings,
     ): WidgetContent {
         val today = PrayerTimesCalculator().timesFor(date, settings, zone)
-        val next = NextPrayerResolver().resolve(afternoon, settings, zone)
+        val next = NextPrayerResolver().resolve(now, settings, zone)
         return WidgetRenderer.render(
             context = context,
             settings = settings,
@@ -59,7 +64,7 @@ class WidgetSurfaceTest {
             next = next,
             today = today,
             capacity = capacity,
-            now = afternoon,
+            now = now,
             zone = zone,
         )
     }
@@ -275,5 +280,78 @@ class WidgetSurfaceTest {
         assertNull(root.findViewById<View>(R.id.widget_list))
         assertNull(root.findViewById<View>(R.id.widget_progress))
         assertEquals(content(widget, 0).emphasis, textOf(root, R.id.widget_remaining))
+    }
+
+    private val beforeSunset by lazy {
+        PrayerTimesCalculator().timesFor(date, settings, zone)!!
+            .at(PrayerName.Maghrib).minusSeconds(20 * 60)
+    }
+
+    @Test
+    fun `the kerahat line announces the next window ahead of time`() {
+        val kerahat = content().kerahat!!
+        assertFalse(kerahat.active)
+        val window = NextPrayerResolver().resolve(afternoon, settings, zone)!!.kerahat!!
+        assertEquals(
+            context.getString(
+                R.string.widget_kerahat_upcoming,
+                CountdownFormat.clock(window.start, zone),
+                CountdownFormat.clock(window.end, zone),
+            ),
+            kerahat.line,
+        )
+    }
+
+    @Test
+    fun `a running window turns the line into its end time`() {
+        val kerahat = content(now = beforeSunset).kerahat!!
+        assertTrue(kerahat.active)
+        val maghrib = PrayerTimesCalculator().timesFor(date, settings, zone)!!.at(PrayerName.Maghrib)
+        assertEquals(
+            context.getString(R.string.widget_kerahat_active, CountdownFormat.clock(maghrib, zone)),
+            kerahat.line,
+        )
+    }
+
+    @Test
+    fun `the kerahat line is drawn where there is room and hidden when switched off`() {
+        val spec = WidgetLayoutSpec(WidgetShape.Large, 5)
+        val shown = inflate(spec, WidgetSettings(), content(capacity = 5))
+        assertEquals(View.VISIBLE, shown.findViewById<View>(R.id.widget_kerahat).visibility)
+        assertEquals(content(capacity = 5).kerahat!!.line, textOf(shown, R.id.widget_kerahat))
+
+        val off = WidgetSettings(showKerahat = false)
+        assertNull(content(off).kerahat)
+        val hidden = inflate(spec, off, content(off, 5))
+        assertEquals(View.GONE, hidden.findViewById<View>(R.id.widget_kerahat).visibility)
+
+        val disabled = settings.copy(kerahat = KerahatSettings(enabled = false))
+        assertNull(content(settings = disabled).kerahat)
+    }
+
+    @Test
+    fun `shapes without a spare line flag a running window on the prayer name`() {
+        val widget = WidgetSettings()
+        val running = content(widget, 0, now = beforeSunset)
+        val badge = running.kerahat!!.badge
+
+        val tiny = inflate(WidgetLayoutSpec(WidgetShape.Tiny, 0), widget, running)
+        assertEquals(badge, textOf(tiny, R.id.widget_name))
+
+        val small = inflate(WidgetLayoutSpec(WidgetShape.Small, 0), widget, running)
+        assertEquals("${running.headline} · $badge", textOf(small, R.id.widget_name))
+
+        // Ahead of time they have nothing to say and keep the plain name.
+        val quiet = content(widget, 0)
+        val idle = inflate(WidgetLayoutSpec(WidgetShape.Small, 0), widget, quiet)
+        assertEquals(quiet.headline, textOf(idle, R.id.widget_name))
+    }
+
+    @Test
+    fun `the kerahat line costs the list a row`() {
+        val without = WidgetSizing.resolve(190, 138, hasMeta = false)
+        val with = WidgetSizing.resolve(190, 138, hasMeta = false, hasKerahat = true)
+        assertEquals(WidgetShape.Compact, with.shape)
+        assertTrue(with.listCapacity in 1 until without.listCapacity)
     }
 }

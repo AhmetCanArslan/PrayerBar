@@ -88,6 +88,18 @@
             android:textSize="11sp"
             tools:text="İstanbul" />
 
+        <TextView
+            android:id="@+id/widget_kerahat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@color/widget_on_surface_variant"
+            android:textFontWeight="600"
+            android:textSize="11sp"
+            android:visibility="gone"
+            tools:text="Kerahat 17:47–18:32" />
+
         <ProgressBar
             android:id="@+id/widget_progress"
             style="?android:attr/progressBarStyleHorizontal"

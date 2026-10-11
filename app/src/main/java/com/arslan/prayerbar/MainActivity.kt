@@ -332,6 +332,7 @@ private fun PrayerBarNavHost(
                         onMaghribAngle = viewModel::setMaghribAngle,
                         onAdjustment = viewModel::setAdjustment,
                         onResetAdjustments = viewModel::resetAdjustments,
+                        onKerahat = viewModel::editKerahat,
                         onMadhab = viewModel::setMadhab,
                         onHighLatitude = viewModel::setHighLatitudeRule,
                         onShafaq = viewModel::setShafaq,
