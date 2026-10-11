@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.PrayerBar" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- The window colour is what shows while the activity opens and closes, before and after
+         Compose draws; it follows the app's own surface so that moment is not a flash. -->
+    <style name="Theme.PrayerBar" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
 
     <style name="Theme.PrayerBar.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/splash_background</item>
