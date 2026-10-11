@@ -205,4 +205,18 @@
     <string name="status_bar_unsupported">No glyph for %1$s — dropped from the label.</string>
     <string name="status_bar_needs_shizuku">Shizuku is not connected, so nothing can be written to the status bar.</string>
     <string name="status_bar_reboot_hint">The system drops these icons on reboot. PrayerBar puts them back as it starts.</string>
+    <string-array name="hijri_months">
+        <item>Muharram</item>
+        <item>Safar</item>
+        <item>Rabi al-Awwal</item>
+        <item>Rabi al-Thani</item>
+        <item>Jumada al-Awwal</item>
+        <item>Jumada al-Thani</item>
+        <item>Rajab</item>
+        <item>Shaban</item>
+        <item>Ramadan</item>
+        <item>Shawwal</item>
+        <item>Dhu al-Qadah</item>
+        <item>Dhu al-Hijjah</item>
+    </string-array>
 </resources>

@@ -203,4 +203,18 @@
     <string name="status_bar_unsupported">%1$s için çizim yok, etiketten çıkarıldı.</string>
     <string name="status_bar_needs_shizuku">Shizuku bağlı değil, durum çubuğuna yazılamaz.</string>
     <string name="status_bar_reboot_hint">Sistem bu ikonları yeniden başlatmada siliyor. PrayerBar açılışta geri koyar.</string>
+    <string-array name="hijri_months">
+        <item>Muharrem</item>
+        <item>Safer</item>
+        <item>Rebiülevvel</item>
+        <item>Rebiülahir</item>
+        <item>Cemaziyelevvel</item>
+        <item>Cemaziyelahir</item>
+        <item>Recep</item>
+        <item>Şaban</item>
+        <item>Ramazan</item>
+        <item>Şevval</item>
+        <item>Zilkade</item>
+        <item>Zilhicce</item>
+    </string-array>
 </resources>

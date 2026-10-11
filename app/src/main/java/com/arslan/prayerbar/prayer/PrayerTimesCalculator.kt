@@ -2,6 +2,8 @@
 
 package com.arslan.prayerbar.prayer
 
+import android.content.Context
+import com.arslan.prayerbar.R
 import io.github.meypod.adhan_kotlin.CalculationMethod
 import io.github.meypod.adhan_kotlin.CalculationParameters
 import io.github.meypod.adhan_kotlin.Coordinates
@@ -95,3 +97,10 @@ internal fun LocalDate.isInRamadan(): Boolean = runCatching {
 internal fun LocalDate.hijriDate(): HijrahDate? = runCatching {
     HijrahChronology.INSTANCE.date(this)
 }.getOrNull()
+
+/** Day and month name, as in "12 Ramadan". Falls back to the month number if the name is missing. */
+internal fun HijrahDate.dayAndMonth(context: Context): String {
+    val month = get(ChronoField.MONTH_OF_YEAR)
+    val name = context.resources.getStringArray(R.array.hijri_months).getOrNull(month - 1)
+    return "${get(ChronoField.DAY_OF_MONTH)} ${name ?: month}"
+}

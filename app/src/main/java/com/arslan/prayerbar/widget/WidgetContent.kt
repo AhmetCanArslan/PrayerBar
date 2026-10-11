@@ -10,12 +10,12 @@ import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.prayer.WidgetSettings
+import com.arslan.prayerbar.prayer.dayAndMonth
 import com.arslan.prayerbar.prayer.hijriDate
 import com.arslan.prayerbar.prayer.visual
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
-import java.time.temporal.ChronoField
 import java.util.Locale
 
 data class WidgetRow(
@@ -106,14 +106,7 @@ object WidgetRenderer {
         val parts = buildList {
             if (widget.showLocation) settings.activeLocation?.label?.let(::add)
             if (widget.showHijri) {
-                now.atZone(zone).toLocalDate().hijriDate()?.let { date ->
-                    add(
-                        "%d.%d".format(
-                            date[ChronoField.DAY_OF_MONTH],
-                            date[ChronoField.MONTH_OF_YEAR],
-                        ),
-                    )
-                }
+                now.atZone(zone).toLocalDate().hijriDate()?.let { add(it.dayAndMonth(context)) }
             }
         }
         return parts.joinToString(" · ")

@@ -11,12 +11,12 @@ import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.NotificationSettings
 import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.prayer.PrayerSettings
+import com.arslan.prayerbar.prayer.dayAndMonth
 import com.arslan.prayerbar.prayer.hijriDate
 import com.arslan.prayerbar.prayer.visual
 import java.time.Duration
 import java.time.Instant
 import java.time.ZoneId
-import java.time.temporal.ChronoField
 import java.util.Locale
 
 /** One time of the day in the expanded notification. */
@@ -93,7 +93,7 @@ object NotificationRenderer {
             configured = true,
             title = render(context, options.titleTemplate(), settings, next, now, zone, locale),
             text = render(context, options.bodyTemplate(locale), settings, next, now, zone, locale),
-            meta = meta(settings, options, now, zone),
+            meta = meta(context, settings, options, now, zone),
             endsAtMillis = next.at.toEpochMilli(),
             remainingMillis = remaining.toMillis(),
             showChronometer = options.showChronometer,
@@ -108,6 +108,7 @@ object NotificationRenderer {
     }
 
     private fun meta(
+        context: Context,
         settings: PrayerSettings,
         options: NotificationSettings,
         now: Instant,
@@ -115,9 +116,7 @@ object NotificationRenderer {
     ): String = buildList {
         if (options.showLocation) settings.activeLocation?.label?.let(::add)
         if (options.showHijri) {
-            now.atZone(zone).toLocalDate().hijriDate()?.let { date ->
-                add("%d.%d".format(date[ChronoField.DAY_OF_MONTH], date[ChronoField.MONTH_OF_YEAR]))
-            }
+            now.atZone(zone).toLocalDate().hijriDate()?.let { add(it.dayAndMonth(context)) }
         }
     }.joinToString(" · ")
 
