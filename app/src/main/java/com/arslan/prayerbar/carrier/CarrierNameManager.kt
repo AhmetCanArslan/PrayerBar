@@ -136,6 +136,10 @@ object CarrierNameManager {
         return ShizukuBinderWrapper(service)
     }
 
+    /** The raw service binder, transacted with the caller's own identity (no Shizuku wrapper). */
+    internal fun rawCarrierConfigBinder(): IBinder? =
+        SystemServiceHelper.getSystemService(CARRIER_CONFIG_SERVICE)
+
     private fun defaultCarrierServicePackage(binder: IBinder): String? {
         val data = Parcel.obtain()
         val reply = Parcel.obtain()
@@ -152,7 +156,41 @@ object CarrierNameManager {
         }
     }
 
+    /**
+     * Patched builds (Pixel since the October 2025 update, Samsung One UI with the same security
+     * patch) reject `overrideConfig` when the calling uid is shell. Once seen, every later write
+     * goes straight to the instrumentation broker instead of failing on the direct path first.
+     */
+    @Volatile
+    private var shellBlocked = false
+
+    /**
+     * The same patched builds only let system apps persist an override. Persistence is a nicety —
+     * the boot receiver re-applies the label anyway — so fall back to an in-memory override.
+     */
+    @Volatile
+    private var persistBlocked = false
+
     private fun overrideConfig(
+        subId: Int,
+        bundle: PersistableBundle?,
+        persistent: Boolean,
+    ): CarrierResult {
+        if (persistent && !persistBlocked) {
+            val result = overrideConfigOnce(subId, bundle, persistent = true)
+            if (result is CarrierResult.TransactionFailed &&
+                result.reason.contains("persistent", ignoreCase = true)
+            ) {
+                Log.i(TAG, "persistent override refused, falling back to in-memory override")
+                persistBlocked = true
+                return overrideConfigOnce(subId, bundle, persistent = false)
+            }
+            return result
+        }
+        return overrideConfigOnce(subId, bundle, persistent = false)
+    }
+
+    private fun overrideConfigOnce(
         subId: Int,
         bundle: PersistableBundle?,
         persistent: Boolean,
@@ -160,8 +198,33 @@ object CarrierNameManager {
         if (!ShizukuHelper.isSupportedAndroidVersion) return CarrierResult.Unsupported
         if (!ShizukuHelper.awaitPermission()) return CarrierResult.NoShizuku
         if (subId == SubscriptionManager.INVALID_SUBSCRIPTION_ID) return CarrierResult.NoSim
+
+        // Root Shizuku is not uid 2000, so the shell check never applies to it.
+        if (shellBlocked && !ShizukuHelper.isRoot()) {
+            return CarrierInstrumentation.run(subId, bundle, persistent)
+        }
+
         val binder = carrierConfigBinder()
             ?: return CarrierResult.TransactionFailed("carrier_config service unavailable")
+        val result = transactOverride(binder, subId, bundle, persistent)
+        if (result is CarrierResult.TransactionFailed && isShellRejection(result.reason)) {
+            Log.i(TAG, "overrideConfig rejected for shell, switching to instrumentation broker")
+            shellBlocked = true
+            return CarrierInstrumentation.run(subId, bundle, persistent)
+        }
+        return result
+    }
+
+    private fun isShellRejection(reason: String): Boolean =
+        reason.contains("shell", ignoreCase = true)
+
+    /** One `overrideConfig` transaction against [binder], with whatever identity it carries. */
+    internal fun transactOverride(
+        binder: IBinder,
+        subId: Int,
+        bundle: PersistableBundle?,
+        persistent: Boolean,
+    ): CarrierResult {
         if (defaultCarrierServicePackage(binder).isNullOrEmpty()) {
             return CarrierResult.TransactionFailed("ICarrierConfigLoader probe failed")
         }
