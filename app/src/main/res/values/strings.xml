@@ -112,6 +112,7 @@
     <string name="token_remaining">Time left until the next prayer</string>
     <string name="token_previous">Previous prayer name</string>
     <string name="token_hijri">Hijri day and month</string>
+    <string name="token_kerahat">“Makruh” while a makruh window runs, empty otherwise</string>
     <string name="tile_name">PrayerBar</string>
     <string name="tile_hint">The tile is its own surface: its own text, its own switch, and no Shizuku needed. Tapping it does nothing.</string>
     <string name="tile_add">Add Quick Settings tile</string>

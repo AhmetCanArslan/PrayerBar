@@ -2,6 +2,7 @@ package com.arslan.prayerbar.carrier
 
 import android.content.Context
 import android.util.Log
+import com.arslan.prayerbar.R
 import com.arslan.prayerbar.data.SettingsRepository
 import com.arslan.prayerbar.prayer.NextPrayer
 import com.arslan.prayerbar.prayer.NextPrayerResolver
@@ -60,6 +61,7 @@ class CarrierApplier(
             next = next,
             now = now,
             labelOf = { context.getString(it.labelRes) },
+            kerahatLabel = context.getString(R.string.kerahat_label),
             use24Hour = settings.use24Hour,
         )
 
@@ -80,6 +82,7 @@ class CarrierApplier(
             next = next,
             now = now,
             labelOf = { context.getString(it.labelRes) },
+            kerahatLabel = context.getString(R.string.kerahat_label),
             use24Hour = use24Hour,
         )
 

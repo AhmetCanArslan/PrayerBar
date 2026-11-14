@@ -17,7 +17,8 @@ enum class TemplateToken(
     Time("saat", "time", R.string.token_time),
     Remaining("kalan", "remaining", R.string.token_remaining),
     Previous("onceki", "previous", R.string.token_previous),
-    Hijri("hicri", "hijri", R.string.token_hijri);
+    Hijri("hicri", "hijri", R.string.token_hijri),
+    Kerahat("mekruh", "makruh", R.string.token_kerahat);
 
     /** `{vakit}` on a Turkish locale, `{prayer}` elsewhere. */
     fun spelling(locale: Locale = Locale.getDefault()): String =

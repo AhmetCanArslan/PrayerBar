@@ -34,8 +34,13 @@ object CarrierTemplate {
     }
 
     /** True when the template holds a token whose value drifts between prayer boundaries. */
-    fun hasCountdownToken(template: String): Boolean = TOKEN_REGEX.findAll(template)
-        .any { TemplateToken.of(it.groupValues[1]) == TemplateToken.Remaining }
+    fun hasCountdownToken(template: String): Boolean = hasToken(template, TemplateToken.Remaining)
+
+    /** True when the template changes as a kerahat window opens or closes. */
+    fun hasKerahatToken(template: String): Boolean = hasToken(template, TemplateToken.Kerahat)
+
+    private fun hasToken(template: String, token: TemplateToken): Boolean =
+        TOKEN_REGEX.findAll(template).any { TemplateToken.of(it.groupValues[1]) == token }
 
     fun render(
         template: String,
@@ -45,6 +50,8 @@ object CarrierTemplate {
         zone: ZoneId = ZoneId.systemDefault(),
         use24Hour: Boolean = true,
         locale: Locale = Locale.getDefault(),
+        /** What `{mekruh}` reads while a kerahat window runs; outside one it renders empty. */
+        kerahatLabel: String = "",
         // The status bar pays a slot per character, so it spells the countdown its own way.
         remainingFormat: (Duration, Locale) -> String = CountdownFormat::remainingShort,
     ): String {
@@ -53,6 +60,7 @@ object CarrierTemplate {
         val hijri = now.atZone(zone).toLocalDate().hijriDate()?.let { date ->
             "${date[java.time.temporal.ChronoField.DAY_OF_MONTH]}.${date[java.time.temporal.ChronoField.MONTH_OF_YEAR]}"
         }.orEmpty()
+        val kerahat = kerahatLabel.takeIf { next.kerahat?.contains(now) == true }.orEmpty()
 
         val replacements = mapOf(
             "vakit" to labelOf(next.name),
@@ -65,6 +73,8 @@ object CarrierTemplate {
             "previous" to previousLabel,
             "hicri" to hijri,
             "hijri" to hijri,
+            "mekruh" to kerahat,
+            "makruh" to kerahat,
         )
 
         val rendered = TOKEN_REGEX.replace(template) { match ->

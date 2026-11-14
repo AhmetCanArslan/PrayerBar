@@ -110,6 +110,7 @@
     <string name="token_remaining">Sıradaki vakte kalan süre</string>
     <string name="token_previous">Önceki vaktin adı</string>
     <string name="token_hijri">Hicri gün ve ay</string>
+    <string name="token_kerahat">Kerahat vakti sürerken “Kerahat”, diğer zamanlarda boş</string>
     <string name="tile_name">PrayerBar</string>
     <string name="tile_hint">Kutucuk kendi başına bir yüzey: kendi metni, kendi anahtarı, Shizuku gerekmez. Dokunmak bir şey yapmaz.</string>
     <string name="tile_add">Hızlı ayarlar kutucuğu ekle</string>

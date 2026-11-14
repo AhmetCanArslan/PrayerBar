@@ -2,6 +2,7 @@ package com.arslan.prayerbar.statusbar
 
 import android.content.Context
 import android.util.Log
+import com.arslan.prayerbar.R
 import com.arslan.prayerbar.carrier.CarrierTemplate
 import com.arslan.prayerbar.carrier.ShizukuHelper
 import com.arslan.prayerbar.data.SettingsRepository
@@ -76,6 +77,7 @@ class StatusBarApplier(
             next = next,
             now = now,
             labelOf = { context.getString(it.labelRes) },
+            kerahatLabel = context.getString(R.string.kerahat_label),
             use24Hour = use24Hour,
             remainingFormat = CountdownFormat::remainingCompact,
         )
@@ -92,6 +94,7 @@ class StatusBarApplier(
             next = next,
             now = now,
             labelOf = { context.getString(it.labelRes) },
+            kerahatLabel = context.getString(R.string.kerahat_label),
             use24Hour = settings.use24Hour,
             remainingFormat = CountdownFormat::remainingCompact,
         )

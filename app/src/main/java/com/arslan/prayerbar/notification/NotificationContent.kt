@@ -163,6 +163,7 @@ object NotificationRenderer {
         next = next,
         now = now,
         labelOf = { context.getString(it.labelRes) },
+        kerahatLabel = context.getString(R.string.kerahat_label),
         zone = zone,
         use24Hour = settings.use24Hour,
         locale = locale,
