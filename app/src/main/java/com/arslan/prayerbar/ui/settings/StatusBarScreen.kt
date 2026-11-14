@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.prayer.PrayerSettings
 import com.arslan.prayerbar.statusbar.StatusBarText
@@ -50,8 +51,8 @@ fun StatusBarScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(MaterialTheme.dimens.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         item {
             SectionCard(title = stringResource(R.string.status_bar_preview)) {

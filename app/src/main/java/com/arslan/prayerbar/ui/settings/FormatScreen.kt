@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.carrier.CarrierTemplate
 import com.arslan.prayerbar.carrier.SimSlot
@@ -47,8 +48,8 @@ fun FormatScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(MaterialTheme.dimens.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         item {
             SectionCard(title = stringResource(R.string.format_preview)) {
@@ -65,7 +66,7 @@ fun FormatScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 16.dp),
+                            .padding(horizontal = MaterialTheme.dimens.rowPaddingH, vertical = MaterialTheme.dimens.rowPaddingV),
                     )
                 }
             }
