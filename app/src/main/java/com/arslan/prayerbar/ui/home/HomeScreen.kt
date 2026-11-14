@@ -195,18 +195,19 @@ private fun KerahatCard(window: KerahatWindow, now: Instant, use24Hour: Boolean)
     val remaining = CountdownFormat.remainingShort(
         Duration.between(now, if (active) window.end else window.start),
     )
+    val dimens = MaterialTheme.dimens
     Card(
         shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = container),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
-            modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(horizontal = dimens.rowPaddingH, vertical = dimens.rowPaddingV),
+            verticalArrangement = Arrangement.spacedBy(dimens.itemGap),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(dimens.itemGap),
             ) {
                 Icon(
                     imageVector = Icons.Rounded.Block,
@@ -218,19 +219,31 @@ private fun KerahatCard(window: KerahatWindow, now: Instant, use24Hour: Boolean)
                         text = stringResource(
                             if (active) R.string.home_kerahat_active else R.string.home_kerahat_next,
                         ),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.labelMedium
+                        } else {
+                            MaterialTheme.typography.labelLarge
+                        },
                         color = supporting,
                     )
                     Text(
                         text = stringResource(window.kind.labelRes),
-                        style = MaterialTheme.typography.titleMediumEmphasized,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.titleSmallEmphasized
+                        } else {
+                            MaterialTheme.typography.titleMediumEmphasized
+                        },
                         color = onContainer,
                     )
                 }
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = window.range(use24Hour),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.titleSmall
+                        } else {
+                            MaterialTheme.typography.titleMedium
+                        },
                         color = onContainer,
                     )
                     Text(
