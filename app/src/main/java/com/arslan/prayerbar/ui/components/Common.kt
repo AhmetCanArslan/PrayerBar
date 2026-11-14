@@ -35,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 
 /** Grouping container used by every settings section. 8dp grid, tonal surface, no shadow. */
 @Composable
@@ -52,8 +53,8 @@ fun SectionCard(
         ),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(MaterialTheme.dimens.cardPadding),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.itemGap),
         ) {
             Text(
                 text = title,
@@ -167,7 +168,7 @@ fun SwitchRow(
     Row(
         modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.itemGap),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge)
