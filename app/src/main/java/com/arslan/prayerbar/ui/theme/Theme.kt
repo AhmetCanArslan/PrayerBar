@@ -9,6 +9,8 @@ import androidx.compose.material3.MotionScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 
 @Composable
@@ -26,10 +28,18 @@ fun PrayerBarTheme(
         else -> PrayerBarLightScheme
     }
 
-    MaterialExpressiveTheme(
-        colorScheme = colorScheme,
-        motionScheme = MotionScheme.expressive(),
-        typography = PrayerBarTypography,
-        content = content,
-    )
+    val dimens = if (LocalConfiguration.current.screenWidthDp < COMPACT_WIDTH_DP) {
+        CompactDimens
+    } else {
+        RegularDimens
+    }
+
+    CompositionLocalProvider(LocalDimens provides dimens) {
+        MaterialExpressiveTheme(
+            colorScheme = colorScheme,
+            motionScheme = MotionScheme.expressive(),
+            typography = if (dimens.compact) PrayerBarCompactTypography else PrayerBarTypography,
+            content = content,
+        )
+    }
 }
