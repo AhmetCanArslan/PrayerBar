@@ -63,6 +63,7 @@ import com.arslan.prayerbar.prayer.PrayerName
 import com.arslan.prayerbar.ui.MainUiState
 import com.arslan.prayerbar.ui.components.SectionCard
 import com.arslan.prayerbar.ui.components.SwitchRow
+import com.arslan.prayerbar.ui.theme.dimens
 import androidx.compose.ui.res.stringResource
 import java.time.Duration
 import java.time.Instant
@@ -95,10 +96,11 @@ fun HomeScreen(
         }
     }
 
+    val dimens = MaterialTheme.dimens
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(dimens.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(dimens.sectionGap),
     ) {
         item {
             CountdownHero(state = state, labelOf = labelOf, onOpenLocation = onOpenLocation)
@@ -546,7 +548,10 @@ private fun KerahatRow(window: KerahatWindow, day: DayTimes, now: Instant, use24
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(
+                    horizontal = MaterialTheme.dimens.rowPaddingH,
+                    vertical = if (MaterialTheme.dimens.compact) 8.dp else 10.dp,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
@@ -611,7 +616,10 @@ private fun PrayerRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(
+                    horizontal = MaterialTheme.dimens.rowPaddingH,
+                    vertical = MaterialTheme.dimens.rowPaddingV,
+                ),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
