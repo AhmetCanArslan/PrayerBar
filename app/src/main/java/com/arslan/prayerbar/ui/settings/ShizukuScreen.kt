@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.ui.ShizukuState
 import com.arslan.prayerbar.ui.components.SectionCard
@@ -39,8 +40,8 @@ fun ShizukuScreen(
         modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(PaddingValues(16.dp)),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(PaddingValues(MaterialTheme.dimens.screenPadding)),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         SectionCard(
             title = stringResource(R.string.shizuku_title),

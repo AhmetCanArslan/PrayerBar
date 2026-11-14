@@ -44,6 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.prayer.PRAYERS_IN_ORDER
 import com.arslan.prayerbar.prayer.PrayerName
@@ -69,8 +70,8 @@ fun WidgetScreen(
     if (widgetIds.isEmpty()) {
         LazyColumn(
             modifier = modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(MaterialTheme.dimens.screenPadding),
+            verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
         ) {
             item {
                 SectionCard(
@@ -175,7 +176,7 @@ private fun WidgetSettingsList(
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         header?.invoke()
         SectionCard(
