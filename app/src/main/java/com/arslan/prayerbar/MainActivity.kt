@@ -35,6 +35,8 @@ import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeFlexibleTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumFlexibleTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ShortNavigationBar
 import androidx.compose.material3.ShortNavigationBarItem
@@ -69,6 +71,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.arslan.prayerbar.carrier.ShizukuHelper
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.ui.MainUiState
 import com.arslan.prayerbar.ui.MainViewModel
 import com.arslan.prayerbar.ui.Route
@@ -196,29 +199,43 @@ private fun PrayerBarRoot(activity: ComponentActivity) {
             .fillMaxSize()
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            LargeFlexibleTopAppBar(
-                title = {
-                    AnimatedContent(
-                        targetState = destination.titleRes(),
-                        transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) },
-                        label = "title",
-                    ) { titleRes -> Text(stringResource(titleRes)) }
-                },
-                subtitle = {
-                    Text(state.settings.activeLocation?.label ?: stringResource(R.string.nav_location))
-                },
-                navigationIcon = {
-                    if (!isTopLevel) {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                Icons.AutoMirrored.Rounded.ArrowBack,
-                                contentDescription = stringResource(R.string.nav_back),
-                            )
-                        }
+            val title: @Composable () -> Unit = {
+                AnimatedContent(
+                    targetState = destination.titleRes(),
+                    transitionSpec = { fadeIn(tween(200)) togetherWith fadeOut(tween(200)) },
+                    label = "title",
+                ) { titleRes -> Text(stringResource(titleRes)) }
+            }
+            val subtitle: @Composable () -> Unit = {
+                Text(state.settings.activeLocation?.label ?: stringResource(R.string.nav_location))
+            }
+            val navigationIcon: @Composable () -> Unit = {
+                if (!isTopLevel) {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            Icons.AutoMirrored.Rounded.ArrowBack,
+                            contentDescription = stringResource(R.string.nav_back),
+                        )
                     }
-                },
-                scrollBehavior = scrollBehavior,
-            )
+                }
+            }
+            // The large bar's expanded header costs ~40dp more than the medium one; a narrow phone
+            // can't spare that above the countdown.
+            if (MaterialTheme.dimens.compact) {
+                MediumFlexibleTopAppBar(
+                    title = title,
+                    subtitle = subtitle,
+                    navigationIcon = navigationIcon,
+                    scrollBehavior = scrollBehavior,
+                )
+            } else {
+                LargeFlexibleTopAppBar(
+                    title = title,
+                    subtitle = subtitle,
+                    navigationIcon = navigationIcon,
+                    scrollBehavior = scrollBehavior,
+                )
+            }
         },
         bottomBar = {
             AnimatedVisibility(visible = isTopLevel, enter = barEnter, exit = barExit) {
