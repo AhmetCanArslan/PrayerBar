@@ -487,6 +487,7 @@ private fun CarrierCard(
     onReset: () -> Unit,
     onRefresh: () -> Unit,
 ) {
+    val dimens = MaterialTheme.dimens
     SectionCard(title = stringResource(R.string.home_carrier_preview)) {
         Card(
             shape = MaterialTheme.shapes.large,
@@ -496,11 +497,15 @@ private fun CarrierCard(
         ) {
             Text(
                 text = state.previewText.ifBlank { "—" },
-                style = MaterialTheme.typography.titleLargeEmphasized,
+                style = if (dimens.compact) {
+                    MaterialTheme.typography.titleMediumEmphasized
+                } else {
+                    MaterialTheme.typography.titleLargeEmphasized
+                },
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .padding(horizontal = dimens.rowPaddingH, vertical = dimens.rowPaddingV),
                 textAlign = TextAlign.Center,
             )
         }
@@ -513,7 +518,7 @@ private fun CarrierCard(
 
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(dimens.itemGap),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             FilledIconButton(onClick = onApply, enabled = !state.busy) {
