@@ -18,7 +18,7 @@ class SafetyNetWorker(
         val container = PrayerBarApp.container(applicationContext)
         val outcome = SurfaceRefresh.run(applicationContext, force = true)
         if (!outcome.active) return Result.success()
-        container.alarmScheduler.schedule(outcome.next)
+        container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
         CarrierService.start(applicationContext)
         return if (outcome.result.isOk) Result.success() else Result.retry()
     }

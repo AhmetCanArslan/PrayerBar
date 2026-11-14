@@ -16,6 +16,8 @@ data class RefreshOutcome(
     val text: String? = null,
     val result: CarrierResult = CarrierResult.Ok,
     val statusBar: StatusBarResult = StatusBarResult.Off,
+    /** A template draws the kerahat state, so the next wake-up should land on a window's edge. */
+    val kerahatEdges: Boolean = false,
 )
 
 object SurfaceRefresh {
@@ -35,7 +37,14 @@ object SurfaceRefresh {
         if (settings.enabled) {
             val outcome = container.carrierApplier.apply(force = force, persistent = persistent)
             PrayerWidgetProvider.refresh(context, settings)
-            return RefreshOutcome(true, outcome.next, outcome.text, outcome.result, statusBar)
+            return RefreshOutcome(
+                true,
+                outcome.next,
+                outcome.text,
+                outcome.result,
+                statusBar,
+                settings.hasKerahatToken,
+            )
         }
         // The status notification needs no refresh of its own here — the service posts it from the
         // resolved prayer below — but it does keep the service, and this refresh, alive.
@@ -50,6 +59,11 @@ object SurfaceRefresh {
             .resolve(Instant.now(), settings, ZoneId.systemDefault())
         if (settings.tile.enabled) PrayerTileService.refresh(context)
         PrayerWidgetProvider.refresh(context, settings)
-        return RefreshOutcome(true, next, statusBar = statusBar)
+        return RefreshOutcome(
+            true,
+            next,
+            statusBar = statusBar,
+            kerahatEdges = settings.hasKerahatToken,
+        )
     }
 }

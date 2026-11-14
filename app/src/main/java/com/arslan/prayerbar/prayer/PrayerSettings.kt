@@ -144,6 +144,17 @@ data class PrayerSettings(
     val hasActiveSurface: Boolean
         get() = enabled || tile.enabled || notification.enabled || statusBar.enabled
 
+    /** Whether a template on a switched-on surface flips as a kerahat window opens or closes. */
+    val hasKerahatToken: Boolean
+        get() = kerahat.enabled && listOfNotNull(
+            template.takeIf { enabled },
+            tile.labelTemplate().takeIf { tile.enabled },
+            tile.subtitleTemplate.takeIf { tile.enabled },
+            statusBar.labelTemplate().takeIf { statusBar.enabled },
+            notification.titleTemplate().takeIf { notification.enabled },
+            notification.bodyTemplate().takeIf { notification.enabled },
+        ).any(CarrierTemplate::hasKerahatToken)
+
     fun widget(appWidgetId: Int): WidgetSettings = widgets[appWidgetId] ?: WidgetSettings()
 
     fun withWidget(appWidgetId: Int, transform: (WidgetSettings) -> WidgetSettings): PrayerSettings =

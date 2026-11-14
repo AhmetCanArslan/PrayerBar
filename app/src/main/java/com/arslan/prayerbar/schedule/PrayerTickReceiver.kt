@@ -20,7 +20,7 @@ class PrayerTickReceiver : BroadcastReceiver() {
                     val outcome = SurfaceRefresh.run(context, force = true)
                     // Everything is off: a leftover alarm from before, so let the chain end here.
                     if (!outcome.active) return@withContext
-                    container.alarmScheduler.schedule(outcome.next)
+                    container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
                     // The process may have been killed since the last boundary; re-arm the wake refresh.
                     CarrierService.start(context)
                     Log.d(TAG, "tick -> ${outcome.text} (${outcome.result})")

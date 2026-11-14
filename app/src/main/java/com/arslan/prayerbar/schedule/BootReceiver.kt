@@ -21,7 +21,7 @@ class BootReceiver : BroadcastReceiver() {
                 withContext(Dispatchers.IO) {
                     val outcome = SurfaceRefresh.run(context, force = true, persistent = true)
                     if (!outcome.active) return@withContext
-                    container.alarmScheduler.schedule(outcome.next)
+                    container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
                     container.scheduleSafetyNet()
                     CarrierService.start(context)
                 }

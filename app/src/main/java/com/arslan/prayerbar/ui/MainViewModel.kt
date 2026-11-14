@@ -233,7 +233,7 @@ class MainViewModel(
                 val outcome = withContext(Dispatchers.IO) {
                     SurfaceRefresh.run(getApplication(), force = true)
                 }
-                container.alarmScheduler.schedule(outcome.next)
+                container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
             } else {
                 if (!settings.hasActiveSurface) stopBackgroundWork()
                 PrayerTileService.refresh(getApplication())
@@ -250,7 +250,7 @@ class MainViewModel(
                 val outcome = withContext(Dispatchers.IO) {
                     SurfaceRefresh.run(getApplication(), force = true)
                 }
-                container.alarmScheduler.schedule(outcome.next)
+                container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
             } else {
                 // The icons stay in the bar until somebody takes them out, so this cannot wait
                 // for the next refresh.
@@ -363,7 +363,7 @@ class MainViewModel(
                 val outcome = withContext(Dispatchers.IO) {
                     SurfaceRefresh.run(getApplication(), force = true)
                 }
-                container.alarmScheduler.schedule(outcome.next)
+                container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
             } else if (settings.hasActiveSurface || PrayerWidgetProvider.hasWidgets(getApplication())) {
                 // Something else still needs the service: hand its notification back to the bare
                 // notice instead of tearing everything down.
@@ -441,7 +441,7 @@ class MainViewModel(
             val outcome = withContext(Dispatchers.IO) {
                 SurfaceRefresh.run(getApplication(), force = true)
             }
-            container.alarmScheduler.schedule(outcome.next)
+            container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
         }
     }
 
@@ -547,7 +547,7 @@ class MainViewModel(
             val outcome = withContext(Dispatchers.IO) {
                 container.carrierApplier.apply(force = true, persistent = persistent)
             }
-            container.alarmScheduler.schedule(outcome.next)
+            container.alarmScheduler.schedule(outcome.next, _state.value.settings.hasKerahatToken)
             _state.update { it.copy(busy = false, message = describe(outcome.result)) }
             refreshEnvironment()
         }
@@ -595,7 +595,7 @@ class MainViewModel(
             val outcome = withContext(Dispatchers.IO) {
                 container.carrierApplier.apply(force = true)
             }
-            container.alarmScheduler.schedule(outcome.next)
+            container.alarmScheduler.schedule(outcome.next, _state.value.settings.hasKerahatToken)
         }
     }
 

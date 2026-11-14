@@ -49,7 +49,7 @@ class PrayerWidgetProvider : AppWidgetProvider() {
         val outcome = withContext(Dispatchers.IO) {
             SurfaceRefresh.run(context, force = true)
         }
-        container.alarmScheduler.schedule(outcome.next)
+        container.alarmScheduler.schedule(outcome.next, outcome.kerahatEdges)
         CarrierService.start(context)
     }
 

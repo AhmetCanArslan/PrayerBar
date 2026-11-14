@@ -12,8 +12,8 @@ import java.time.Instant
 
 /**
  * Arms one exact alarm at the next prayer boundary. The receiver re-arms the following one, so the
- * app wakes roughly six times a day and never polls. With a widget placed, the edges of the kerahat
- * windows count as boundaries too.
+ * app wakes roughly six times a day and never polls. With a widget placed, or a template holding
+ * the kerahat token, the edges of the kerahat windows count as boundaries too.
  */
 class PrayerAlarmScheduler(private val context: Context) {
 
@@ -24,11 +24,11 @@ class PrayerAlarmScheduler(private val context: Context) {
     val canScheduleExact: Boolean
         get() = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
 
-    fun schedule(next: NextPrayer?) {
-        // Only a widget draws the kerahat state, so only a placed one earns the extra wake-ups.
-        val boundary = next?.let {
-            if (PrayerWidgetProvider.hasWidgets(context)) it.wakeAt(Instant.now()) else it.at
-        }
+    fun schedule(next: NextPrayer?, kerahatEdges: Boolean = false) {
+        // Only a widget or a kerahat token draws the kerahat state, so only they earn the extra
+        // wake-ups.
+        val edges = kerahatEdges || PrayerWidgetProvider.hasWidgets(context)
+        val boundary = next?.let { if (edges) it.wakeAt(Instant.now()) else it.at }
         val triggerAt = boundary?.plusSeconds(BOUNDARY_GRACE_SECONDS)
             ?: Instant.now().plusSeconds(FALLBACK_INTERVAL_SECONDS)
         val triggerMillis = triggerAt.toEpochMilli()
