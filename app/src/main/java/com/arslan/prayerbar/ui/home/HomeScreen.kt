@@ -387,14 +387,15 @@ private fun CountdownHero(
         label = "heroSpin",
     )
 
+    val dimens = MaterialTheme.dimens
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(dimens.itemGap),
     ) {
         Box(
             modifier = Modifier
-                .fillMaxWidth(0.72f)
+                .fillMaxWidth(dimens.heroFraction)
                 .aspectRatio(1f)
                 .scale(scale)
                 .rotate(spin)
@@ -405,16 +406,20 @@ private fun CountdownHero(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(if (dimens.compact) 0.dp else 4.dp),
                 modifier = Modifier.rotate(-spin),
             ) {
                 if (next == null) {
                     Text(
                         text = stringResource(R.string.home_no_location),
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.bodyMedium
+                        } else {
+                            MaterialTheme.typography.bodyLarge
+                        },
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        modifier = Modifier.padding(horizontal = 24.dp),
+                        modifier = Modifier.padding(horizontal = if (dimens.compact) 16.dp else 24.dp),
                     )
                     androidx.compose.material3.TextButton(onClick = onOpenLocation) {
                         Text(stringResource(R.string.home_set_location))
@@ -422,12 +427,20 @@ private fun CountdownHero(
                 } else {
                     Text(
                         text = labelOf(next.name),
-                        style = MaterialTheme.typography.headlineSmallEmphasized,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.titleLargeEmphasized
+                        } else {
+                            MaterialTheme.typography.headlineSmallEmphasized
+                        },
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                     Text(
                         text = CountdownFormat.remainingClock(Duration.between(state.now, next.at)),
-                        style = MaterialTheme.typography.displayMediumEmphasized,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.displaySmallEmphasized
+                        } else {
+                            MaterialTheme.typography.displayMediumEmphasized
+                        },
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                     Text(
@@ -435,7 +448,11 @@ private fun CountdownHero(
                             next.at,
                             use24Hour = state.settings.use24Hour,
                         ),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = if (dimens.compact) {
+                            MaterialTheme.typography.titleSmall
+                        } else {
+                            MaterialTheme.typography.titleMedium
+                        },
                         color = MaterialTheme.colorScheme.onPrimaryContainer,
                     )
                 }
