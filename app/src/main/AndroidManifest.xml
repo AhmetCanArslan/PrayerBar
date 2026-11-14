@@ -20,6 +20,12 @@
         android:name="android.hardware.telephony"
         android:required="false" />
 
+    <!-- Broker for builds that block overrideConfig from the shell uid; see CarrierInstrumentation. -->
+    <instrumentation
+        android:name=".carrier.CarrierInstrumentation"
+        android:targetPackage="${applicationId}"
+        android:targetProcesses="${applicationId}:carrier" />
+
     <application
         android:name=".PrayerBarApp"
         android:allowBackup="true"

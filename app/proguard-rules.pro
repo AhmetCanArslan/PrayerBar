@@ -10,3 +10,6 @@
 -keepclassmembers class rikka.shizuku.ShizukuRemoteProcess {
     public int waitFor();
 }
+
+# Started by name through `am instrument`.
+-keep class com.arslan.prayerbar.carrier.CarrierInstrumentation { *; }
