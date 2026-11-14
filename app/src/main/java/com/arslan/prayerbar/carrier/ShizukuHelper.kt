@@ -104,6 +104,48 @@ object ShizukuHelper {
         }
     }
 
+    /** True when the Shizuku server runs as root, which no shell-uid restriction applies to. */
+    fun isRoot(): Boolean = try {
+        Shizuku.getUid() == 0
+    } catch (e: Exception) {
+        false
+    }
+
+    /** Like [executeShellCommand] but returns combined stdout/stderr, or null if it never ran. */
+    fun executeShellCommandForOutput(command: Array<String>, timeoutMillis: Long): String? {
+        if (!hasPermission()) return null
+        return try {
+            val newProcess: Method = Shizuku::class.java.getDeclaredMethod(
+                "newProcess",
+                Array<String>::class.java,
+                Array<String>::class.java,
+                String::class.java,
+            )
+            newProcess.isAccessible = true
+            val process = newProcess.invoke(null, command, null, null) as Process
+            val stdout = StringBuilder()
+            val stderr = StringBuilder()
+            val readers = listOf(
+                Thread { stdout.append(process.inputStream.bufferedReader().readText()) },
+                Thread { stderr.append(process.errorStream.bufferedReader().readText()) },
+            )
+            readers.forEach { it.start() }
+            // ShizukuRemoteProcess.exitValue() throws IllegalArgumentException while running, which
+            // breaks Process.waitFor(timeout)'s polling; block on waitFor() in a thread instead.
+            val waiter = Thread { runCatching { process.waitFor() } }.apply { start() }
+            waiter.join(timeoutMillis)
+            if (waiter.isAlive) {
+                process.destroy()
+                Log.w(TAG, "Timed out: ${command.first()} ${command.getOrNull(1)}")
+            }
+            readers.forEach { it.join(1_000L) }
+            "$stdout$stderr"
+        } catch (e: Exception) {
+            Log.e(TAG, "Shell command failed: ${command.first()}", e)
+            null
+        }
+    }
+
     /** Some skins cache the carrier label until SystemUI restarts. */
     fun restartSystemUi(): Boolean =
         executeShellCommand(arrayOf("killall", "com.android.systemui")) ||
