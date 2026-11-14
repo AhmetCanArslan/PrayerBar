@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.ui.Route
 
@@ -38,8 +39,8 @@ fun SettingsScreen(onOpen: (Route) -> Unit, modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxWidth()
             .verticalScroll(rememberScrollState())
-            .padding(PaddingValues(16.dp)),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+            .padding(PaddingValues(MaterialTheme.dimens.screenPadding)),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         SettingsGroup {
             SettingsRow(
