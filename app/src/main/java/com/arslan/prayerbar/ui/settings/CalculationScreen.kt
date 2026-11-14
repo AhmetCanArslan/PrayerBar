@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.arslan.prayerbar.ui.theme.dimens
 import com.arslan.prayerbar.R
 import com.arslan.prayerbar.prayer.KerahatKind
 import com.arslan.prayerbar.prayer.KerahatSettings
@@ -70,8 +71,8 @@ fun CalculationScreen(
 
     LazyColumn(
         modifier = modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(MaterialTheme.dimens.screenPadding),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.dimens.sectionGap),
     ) {
         item {
             SectionCard(title = stringResource(R.string.calc_method)) {
