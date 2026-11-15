@@ -179,8 +179,6 @@
     <string name="status_appearance">Görünüm</string>
     <string name="status_chronometer">Canlı geri sayım</string>
     <string name="status_chronometer_hint">Saatin durduğu köşede her saniye işler. Android kendi sayar, pil harcamaz.</string>
-    <string name="status_progress">İlerleme çubuğu</string>
-    <string name="status_progress_hint">Önceki vakitle sonraki arasındaki sürenin ne kadarının geçtiği.</string>
     <string name="status_colorized">Renkli arka plan</string>
     <string name="status_colorized_hint">Yalnızca simgeyi boyamak yerine bildirimin tamamını vaktin rengine boyar. Bunu ancak kalıcı bir bildirim yapabilir.</string>
     <string name="status_timeline">Günün vakitleri</string>

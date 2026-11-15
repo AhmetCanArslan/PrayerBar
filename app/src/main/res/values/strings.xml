@@ -181,8 +181,6 @@
     <string name="status_appearance">Appearance</string>
     <string name="status_chronometer">Live countdown</string>
     <string name="status_chronometer_hint">Ticks down every second in the corner where the time usually sits. Android counts it itself, so it costs no battery.</string>
-    <string name="status_progress">Progress bar</string>
-    <string name="status_progress_hint">How far the gap between the last time and the next one has run.</string>
     <string name="status_colorized">Coloured background</string>
     <string name="status_colorized_hint">Paints the whole notification in the prayer colour instead of tinting only the icon. Only an ongoing notification is allowed this.</string>
     <string name="status_timeline">The day\'s times</string>
