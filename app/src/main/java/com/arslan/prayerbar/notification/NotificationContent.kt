@@ -38,18 +38,11 @@ data class NotificationContent(
     val endsAtMillis: Long,
     val remainingMillis: Long,
     val showChronometer: Boolean,
-    val progress: Int,
-    val showProgress: Boolean,
     @param:DrawableRes val iconRes: Int,
     @param:ColorInt val accent: Int,
     val colorized: Boolean,
     val lines: List<NotificationLine>,
-) {
-    companion object {
-        /** Progress is carried in permille so the bar moves smoothly between two prayers. */
-        const val PROGRESS_MAX = 1000
-    }
-}
+)
 
 /**
  * Renders [NotificationContent] from settings. Pure, like [com.arslan.prayerbar.tile.TileRenderer]:
@@ -77,8 +70,6 @@ object NotificationRenderer {
                 endsAtMillis = now.toEpochMilli(),
                 remainingMillis = 0L,
                 showChronometer = false,
-                progress = 0,
-                showProgress = false,
                 iconRes = R.drawable.ic_tile_prayer,
                 accent = fallbackAccent,
                 colorized = false,
@@ -97,9 +88,6 @@ object NotificationRenderer {
             endsAtMillis = next.at.toEpochMilli(),
             remainingMillis = remaining.toMillis(),
             showChronometer = options.showChronometer,
-            progress = (next.progress(now) * NotificationContent.PROGRESS_MAX).toInt()
-                .coerceIn(0, NotificationContent.PROGRESS_MAX),
-            showProgress = options.showProgress,
             iconRes = if (options.showIcon) visual.iconRes else R.drawable.ic_tile_prayer,
             accent = if (options.usePrayerColor) visual.color else fallbackAccent,
             colorized = options.colorized,

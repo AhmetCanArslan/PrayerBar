@@ -99,7 +99,6 @@ class NotificationSurfaceTest {
         val rendered = content()
         assertTrue(rendered.showChronometer)
         assertEquals(rendered.remainingMillis, rendered.endsAtMillis - afternoon.toEpochMilli())
-        assertTrue(rendered.progress in 1..999)
     }
 
     @Test
