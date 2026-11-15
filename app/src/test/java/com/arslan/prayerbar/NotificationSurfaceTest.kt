@@ -203,10 +203,8 @@ class NotificationSurfaceTest {
             enabled = true,
             template = TemplateToken.Prayer.spelling(Locale.ENGLISH),
             subtitleTemplate = TemplateToken.Time.spelling(Locale.ENGLISH),
-            showProgress = false,
         )
         assertFalse(still.hasCountdown)
-        assertTrue(still.copy(showProgress = true).hasCountdown)
         assertTrue(
             still.copy(subtitleTemplate = TemplateToken.Remaining.spelling(Locale.ENGLISH))
                 .hasCountdown,

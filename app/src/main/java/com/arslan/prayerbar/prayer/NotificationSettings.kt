@@ -15,7 +15,6 @@ data class NotificationSettings(
     val template: String = "",
     val subtitleTemplate: String = "",
     val showChronometer: Boolean = true,
-    val showProgress: Boolean = true,
     val showTimeline: Boolean = true,
     val visiblePrayers: Set<PrayerName> = OBLIGATORY_PRAYERS,
     val showIcon: Boolean = true,
@@ -37,8 +36,7 @@ data class NotificationSettings(
      * platform ticks that one down on its own, without the app being awake at all.
      */
     val hasCountdown: Boolean
-        get() = showProgress ||
-            CarrierTemplate.hasCountdownToken(titleTemplate()) ||
+        get() = CarrierTemplate.hasCountdownToken(titleTemplate()) ||
             CarrierTemplate.hasCountdownToken(bodyTemplate())
 
     fun togglePrayer(prayer: PrayerName): NotificationSettings {
