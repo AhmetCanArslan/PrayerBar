@@ -24,7 +24,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -137,12 +136,6 @@ fun NotificationScreen(
                     supporting = stringResource(R.string.status_chronometer_hint),
                     checked = options.showChronometer,
                     onCheckedChange = { on -> onEdit { it.copy(showChronometer = on) } },
-                )
-                SwitchRow(
-                    title = stringResource(R.string.status_progress),
-                    supporting = stringResource(R.string.status_progress_hint),
-                    checked = options.showProgress,
-                    onCheckedChange = { on -> onEdit { it.copy(showProgress = on) } },
                 )
                 SwitchRow(
                     title = stringResource(R.string.widget_show_icon),
@@ -262,19 +255,6 @@ private fun NotificationPreview(options: NotificationSettings, content: Notifica
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (content.showProgress) {
-                LinearProgressIndicator(
-                    progress = { content.progress.toFloat() / NotificationContent.PROGRESS_MAX },
-                    color = if (colorized) onContainer else accent,
-                    trackColor = variant.copy(alpha = 0.25f),
-                    drawStopIndicator = {},
-                    gapSize = 0.dp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 6.dp)
-                        .height(5.dp),
-                )
-            }
             if (content.lines.isNotEmpty()) {
                 HorizontalDivider(
                     color = variant.copy(alpha = 0.25f),
