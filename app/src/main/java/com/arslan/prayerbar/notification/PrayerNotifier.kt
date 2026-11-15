@@ -160,9 +160,6 @@ object PrayerNotifier {
                 .setUsesChronometer(true)
                 .setChronometerCountDown(true)
         }
-        if (content.showProgress) {
-            builder.setProgress(NotificationContent.PROGRESS_MAX, content.progress, false)
-        }
 
         if (content.lines.isEmpty()) {
             builder.setStyle(NotificationCompat.BigTextStyle().bigText(content.text))
