@@ -67,8 +67,19 @@ CHUNKS = countdown_chunks()
 #
 # The box is 100 units rather than 24 only so every coordinate lands on a whole number: at 1440
 # drawables the two decimal places the finer box needed were costing more than a megabyte.
+#
+# INTRINSIC_HEIGHT is the size the box *declares*, and it has to be the status bar's own icon box,
+# because not every SystemUI fits a drawable to the icon height. AOSP normalises: it scales any
+# drawable to the icon height, so there the declared size is irrelevant. Samsung's shade header
+# does not — measured on One UI with test rectangles, it draws a drawable at its intrinsic size
+# times a fixed 0.875 (12dp → 31px, 24dp → 63px, 48dp → 126px at 3x) inside a 13dp icon view. A
+# box declared at 24dp therefore came out 1.6 times the size of every icon beside it.
+#
+# Declared as 15dp, the box lands on the icon view's height (15 × 0.875 = 13dp) where the drawable
+# is drawn as declared, and still fills the icon height where it is normalised — the same label
+# on both. Widths keep two decimals so the aspect ratio survives the smaller box.
 VIEWPORT_HEIGHT = 100.0
-INTRINSIC_HEIGHT = 24
+INTRINSIC_HEIGHT = 15
 CAP_TARGET = 54.3      # 20px of the 36.7px box
 BASELINE = 81.9        # the clock's baseline
 
@@ -122,7 +133,7 @@ def draw(font, glyph_set, cmap, hmtx, scale, text, name):
     width = round(pen_x)
     if width <= 0:
         raise SystemExit("zero advance for %r" % text)
-    intrinsic = max(1, round(width * INTRINSIC_HEIGHT / VIEWPORT_HEIGHT))
+    intrinsic = dp(width * INTRINSIC_HEIGHT / VIEWPORT_HEIGHT)
     with open(os.path.join(DRAWABLE_DIR, name + ".xml"), "w") as handle:
         handle.write(VECTOR.format(
             width=intrinsic,
@@ -131,6 +142,11 @@ def draw(font, glyph_set, cmap, hmtx, scale, text, name):
             box=round(VIEWPORT_HEIGHT),
             body=body,
         ))
+
+
+def dp(value):
+    """Two decimals at most, trailing zeros dropped: 12.9, not 13 and not 12.90."""
+    return ("%.2f" % max(value, 0.01)).rstrip("0").rstrip(".")
 
 
 def main():
