@@ -227,6 +227,8 @@
     <string name="home_kerahat_ends_in">%1$s kaldı</string>
     <string name="home_kerahat_starts_in">%1$s sonra</string>
     <string name="home_kerahat_legend">Kerahat vakitleri</string>
+    <string name="home_prayer_ends">Vakit sonu %1$s</string>
+    <string name="home_prayer_ends_in">Vakit sonu %1$s · %2$s kaldı</string>
     <string name="calc_kerahat">Kerahat vakitleri</string>
     <string name="calc_kerahat_hint">Namaz kılmanın mekruh olduğu üç vakit: güneş doğduktan sonra, öğleden önce güneş tepedeyken (istiva) ve güneş batmadan önce. Takvimler bunları sabit bir dakika olarak verir; yaygın değer 45 dakikadır ve her biri buradan değiştirilebilir.</string>
     <string name="calc_kerahat_show">Kerahat vakitlerini göster</string>

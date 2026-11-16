@@ -229,6 +229,8 @@
     <string name="home_kerahat_ends_in">%1$s left</string>
     <string name="home_kerahat_starts_in">in %1$s</string>
     <string name="home_kerahat_legend">Makruh times</string>
+    <string name="home_prayer_ends">Ends %1$s</string>
+    <string name="home_prayer_ends_in">Ends %1$s · %2$s left</string>
     <string name="calc_kerahat">Makruh times</string>
     <string name="calc_kerahat_hint">The three stretches in which prayer is disliked: after sunrise, at the zenith before Dhuhr, and before sunset. Calendars print them as a fixed number of minutes; 45 is the common figure, and each can be changed here.</string>
     <string name="calc_kerahat_show">Show makruh times</string>
