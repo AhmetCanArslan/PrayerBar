@@ -2,6 +2,7 @@ package com.arslan.prayerbar.carrier
 
 import android.app.Activity
 import android.app.Instrumentation
+import android.app.UiAutomation
 import android.os.Build
 import android.os.Bundle
 import android.os.PersistableBundle
@@ -53,7 +54,7 @@ class CarrierInstrumentation : Instrumentation() {
         val persistent = arguments.getString(ARG_PERSISTENT).toBoolean()
         val bundle = arguments.getString(ARG_BUNDLE)?.let(::decodeBundle)
 
-        val automation = uiAutomation
+        val automation = getUiAutomation(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES)
         automation.adoptShellPermissionIdentity()
         return try {
             val binder = CarrierNameManager.rawCarrierConfigBinder()
