@@ -106,7 +106,7 @@ object WidgetRenderer {
             meta = meta(context, settings, widget, now, zone),
             kerahat = kerahat(context, settings, widget, next, now, zone, locale),
             progress = (next.progress(now) * 1000f).toInt().coerceIn(0, 1000),
-            showProgress = widget.showProgress,
+            showProgress = false,
             iconRes = visual.iconRes,
             accent = accent,
             rows = rows,

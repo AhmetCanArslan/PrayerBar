@@ -51,6 +51,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.arslan.prayerbar.R
@@ -122,17 +123,6 @@ fun HomeScreen(
             )
         }
         if (day != null) {
-            if (windows.isNotEmpty()) {
-                item {
-                    DayStrip(
-                        day = day,
-                        windows = windows,
-                        tracked = tracked,
-                        now = state.now.takeIf { !showTomorrow },
-                        use24Hour = state.settings.use24Hour,
-                    )
-                }
-            }
             items(items = prayers, key = { it.name }) { prayer ->
                 PrayerRow(
                     prayer = prayer,
@@ -247,15 +237,6 @@ private fun KerahatCard(window: KerahatWindow, now: Instant, use24Hour: Boolean)
                     )
                 }
             }
-            if (active) {
-                LinearProgressIndicator(
-                    progress = { window.progress(now) },
-                    color = MaterialTheme.colorScheme.error,
-                    trackColor = onContainer.copy(alpha = 0.16f),
-                    drawStopIndicator = {},
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
         }
     }
 }
@@ -266,106 +247,6 @@ private fun KerahatWindow.range(use24Hour: Boolean): String = stringResource(
     CountdownFormat.clock(start, use24Hour = use24Hour),
     CountdownFormat.clock(end, use24Hour = use24Hour),
 )
-
-/**
- * Fajr to Isha as one bar: the kerahat windows as bands, the tracked times as dots and, for today,
- * a marker where the day has got to.
- */
-@Composable
-private fun DayStrip(
-    day: DayTimes,
-    windows: List<KerahatWindow>,
-    tracked: Set<PrayerName>,
-    now: Instant?,
-    use24Hour: Boolean,
-) {
-    val from = day.at(PrayerName.Fajr)
-    val to = day.at(PrayerName.Isha)
-    val span = (to.toEpochMilli() - from.toEpochMilli()).toFloat()
-    if (span <= 0f) return
-    fun fraction(instant: Instant): Float =
-        ((instant.toEpochMilli() - from.toEpochMilli()) / span).coerceIn(0f, 1f)
-
-    val track = MaterialTheme.colorScheme.surfaceContainerHighest
-    val band = MaterialTheme.colorScheme.error
-    val dot = MaterialTheme.colorScheme.onSurfaceVariant
-    val marker = MaterialTheme.colorScheme.primary
-    val dots = PRAYERS_IN_ORDER
-        .filter { it in tracked }
-        .map { day.at(it) }
-        .filter { !it.isBefore(from) && !it.isAfter(to) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        Canvas(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(20.dp),
-        ) {
-            val trackHeight = 8.dp.toPx()
-            val top = (size.height - trackHeight) / 2f
-            val radius = CornerRadius(trackHeight / 2f)
-            drawRoundRect(track, Offset(0f, top), Size(size.width, trackHeight), radius)
-            windows.forEach { window ->
-                val left = fraction(window.start) * size.width
-                val right = fraction(window.end) * size.width
-                if (right > left) {
-                    drawRoundRect(band, Offset(left, top), Size(right - left, trackHeight), radius)
-                }
-            }
-            val dotRadius = 2.dp.toPx()
-            dots.forEach { at ->
-                val x = (fraction(at) * size.width).coerceIn(dotRadius * 2, size.width - dotRadius * 2)
-                drawCircle(dot, dotRadius, Offset(x, size.height / 2f))
-            }
-            if (now != null && !now.isBefore(from) && !now.isAfter(to)) {
-                val stroke = 3.dp.toPx()
-                val x = (fraction(now) * size.width).coerceIn(stroke / 2f, size.width - stroke / 2f)
-                drawLine(
-                    color = marker,
-                    start = Offset(x, stroke / 2f),
-                    end = Offset(x, size.height - stroke / 2f),
-                    strokeWidth = stroke,
-                    cap = StrokeCap.Round,
-                )
-            }
-        }
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = CountdownFormat.clock(from, day.zone, use24Hour),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(8.dp)
-                        .clip(CircleShape)
-                        .background(band),
-                )
-                Text(
-                    text = stringResource(R.string.home_kerahat_legend),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(start = 6.dp),
-                )
-            }
-            Text(
-                text = CountdownFormat.clock(to, day.zone, use24Hour),
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
 
 @Composable
 private fun CountdownHero(
@@ -380,12 +261,6 @@ private fun CountdownHero(
         animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
         label = "heroScale",
     )
-    val progress = next?.progress(state.now) ?: 0f
-    val spin by animateFloatAsState(
-        targetValue = progress * 30f,
-        animationSpec = MaterialTheme.motionScheme.slowSpatialSpec(),
-        label = "heroSpin",
-    )
 
     val dimens = MaterialTheme.dimens
     Column(
@@ -398,7 +273,6 @@ private fun CountdownHero(
                 .fillMaxWidth(dimens.heroFraction)
                 .aspectRatio(1f)
                 .scale(scale)
-                .rotate(spin)
                 .clip(MaterialShapes.Cookie12Sided.toShape())
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .clickable { pressed = !pressed },
@@ -407,7 +281,6 @@ private fun CountdownHero(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(if (dimens.compact) 0.dp else 4.dp),
-                modifier = Modifier.rotate(-spin),
             ) {
                 if (next == null) {
                     Text(
@@ -458,11 +331,6 @@ private fun CountdownHero(
                 }
             }
         }
-
-        LinearWavyProgressIndicator(
-            progress = { progress },
-            modifier = Modifier.fillMaxWidth(),
-        )
     }
 }
 
@@ -559,97 +427,45 @@ private fun PrayerRow(
 ) {
     val start = day.at(prayer)
     val end = day.endOf(prayer)
-    val elapsed = start.isBefore(now)
-    val running = elapsed && end != null && end.isAfter(now)
-    val container = when {
-        isNext -> MaterialTheme.colorScheme.tertiaryContainer
-        running -> MaterialTheme.colorScheme.secondaryContainer
-        elapsed -> MaterialTheme.colorScheme.surfaceContainerLow
-        else -> MaterialTheme.colorScheme.surfaceContainer
-    }
-    val onContainer = when {
-        isNext -> MaterialTheme.colorScheme.onTertiaryContainer
-        running -> MaterialTheme.colorScheme.onSecondaryContainer
-        elapsed -> MaterialTheme.colorScheme.onSurfaceVariant
+    val clock = { at: Instant -> CountdownFormat.clock(at, day.zone, use24Hour) }
+    val color = when {
+        isNext -> MaterialTheme.colorScheme.primary
+        start.isBefore(now) -> MaterialTheme.colorScheme.onSurfaceVariant
         else -> MaterialTheme.colorScheme.onSurface
     }
-    val clock = { at: Instant -> CountdownFormat.clock(at, day.zone, use24Hour) }
-    Card(
-        shape = if (isNext || running) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(containerColor = container),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    horizontal = MaterialTheme.dimens.rowPaddingH,
-                    vertical = MaterialTheme.dimens.rowPaddingV,
-                ),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
+    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = labelOf(prayer),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (isNext) FontWeight.Bold else null,
+                color = color,
+                modifier = Modifier.weight(1f),
+            )
+            Text(
+                text = if (end != null) {
+                    stringResource(R.string.kerahat_range, clock(start), clock(end))
+                } else {
+                    clock(start)
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = if (isNext) FontWeight.Bold else null,
+                color = color,
+            )
+        }
+        if (kerahat != null) {
+            Row {
                 Text(
-                    text = labelOf(prayer),
-                    style = if (isNext || running) {
-                        MaterialTheme.typography.titleMediumEmphasized
-                    } else {
-                        MaterialTheme.typography.bodyLarge
-                    },
-                    color = onContainer,
+                    text = stringResource(R.string.kerahat_label),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.weight(1f),
                 )
                 Text(
-                    text = clock(start),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = onContainer,
+                    text = stringResource(R.string.kerahat_range, clock(kerahat.start), clock(kerahat.end)),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
                 )
-            }
-            if (end != null) {
-                Text(
-                    text = stringResource(
-                        if (running) R.string.home_prayer_ends_in else R.string.home_prayer_ends,
-                        clock(end),
-                        CountdownFormat.remainingShort(Duration.between(now, end)),
-                    ),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = onContainer.copy(alpha = 0.8f),
-                )
-            }
-            if (kerahat != null) {
-                val active = kerahat.contains(now)
-                val passed = !kerahat.end.isAfter(now)
-                val tint = MaterialTheme.colorScheme.error.copy(alpha = if (passed) 0.5f else 1f)
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(tint),
-                    )
-                    Text(
-                        text = stringResource(R.string.kerahat_label) + " · " +
-                            stringResource(kerahat.kind.labelRes),
-                        style = if (active) {
-                            MaterialTheme.typography.labelLargeEmphasized
-                        } else {
-                            MaterialTheme.typography.labelMedium
-                        },
-                        color = tint,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp),
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.kerahat_range,
-                            clock(kerahat.start),
-                            clock(kerahat.end),
-                        ),
-                        style = MaterialTheme.typography.labelMedium,
-                        color = tint,
-                    )
-                }
             }
         }
     }

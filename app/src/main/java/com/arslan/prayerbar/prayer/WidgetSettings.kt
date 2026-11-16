@@ -19,7 +19,7 @@ data class WidgetSettings(
     val orderedPrayers: List<PrayerName>
         get() = PRAYERS_IN_ORDER.filter { it in visiblePrayers }
 
-    val hasCountdown: Boolean get() = showCountdown || showProgress
+    val hasCountdown: Boolean get() = showCountdown
 
     fun togglePrayer(prayer: PrayerName): WidgetSettings {
         val next = if (prayer in visiblePrayers) visiblePrayers - prayer else visiblePrayers + prayer

@@ -211,12 +211,6 @@ private fun WidgetSettingsList(
                 onCheckedChange = { on -> onEdit { it.copy(showSeconds = on) } },
             )
             SwitchRow(
-                title = stringResource(R.string.widget_show_progress),
-                supporting = stringResource(R.string.widget_show_progress_hint),
-                checked = widget.showProgress,
-                onCheckedChange = { on -> onEdit { it.copy(showProgress = on) } },
-            )
-            SwitchRow(
                 title = stringResource(R.string.widget_show_icon),
                 checked = widget.showIcon,
                 onCheckedChange = { on -> onEdit { it.copy(showIcon = on) } },
